@@ -46,6 +46,7 @@ app.get("/", (req, res) => {
 
 //this for route will need for store front, also for admin dashboard
 app.use("/api/vivawallet/", pagamentoRoutes);
+app.use("/api/delivery/", pagamentoRoutes);
 app.use("/api/products/", productRoutes);
 app.use("/api/category/", categoryRoutes);
 app.use("/api/coupon/", couponRoutes);

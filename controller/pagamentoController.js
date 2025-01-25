@@ -36,47 +36,43 @@ const createPaymentOrder = async (req, res) => {
             sourceCode: data.sourceCode,
         };
 
-        // const orderToSave = {
-        //     amount: data.amount,
-        //     customerTrns: data.customerTrns,
-        //     email: data.customer.email,
-        //     fullName: data.customer.fullName,
-        //     phone: data.customer.phone,
-        //     requestLang: data.customer.requestLang,
-        //     dynamicDescriptor: data.dynamicDescriptor,
-        //     paymentTimeout: data.paymentTimeout,
-        //     preauth: data.preauth,
-        //     allowRecurring: data.allowRecurring,
-        //     maxInstallments: data.maxInstallments,
-        //     merchantTrns: data.merchantTrns,
-        //     paymentNotification: data.paymentNotification,
-        //     tipAmount: data.tipAmount,
-        //     disableExactAmount: data.disableExactAmount,
-        //     disableCash: data.disableCash,
-        //     disableWallet: data.disableWallet,
-        //     sourceCode: data.sourceCode,
-        // }
-
         const orderToSave = {
-            orderCode: data.orderCode,
-            invoice: data.invoice,
-            cart: data.cart,
+            amount: data.amount,
+            customerTrns: data.customerTrns,
+            email: data.customer.email,
+            fullName: data.customer.fullName,
+            phone: data.customer.phone,
+            requestLang: data.customer.requestLang,
+            dynamicDescriptor: data.dynamicDescriptor,
+            paymentTimeout: data.paymentTimeout,
+            preauth: data.preauth,
+            allowRecurring: data.allowRecurring,
+            maxInstallments: data.maxInstallments,
+            merchantTrns: data.merchantTrns,
+            paymentNotification: data.paymentNotification,
+            tipAmount: data.tipAmount,
+            disableExactAmount: data.disableExactAmount,
+            disableCash: data.disableCash,
+            disableWallet: data.disableWallet,
+            sourceCode: data.sourceCode,
+            // dados customizados
             user_info: {
                 name: data.customer.fullName,
                 email: data.customer.email,
                 contact: data.customer.phone,
+                address: data.customerTrns,
             },
-            paymentNotification: data.paymentNotification,
-            merchantTrns: data.merchantTrns,
-            dynamicDescriptor: data.dynamicDescriptor,
-            amount: data.amount,
-            subTotal: data.amount,
             shippingCost: data.shippingCost,
             discount: data.discount || 0,
             total: data.amount,
+            subtTotal: data.amount,
             cardInfo: data.cardInfo,
             status: data.status,
-        };
+            paymentMethod: data.paymentMethod,
+            paymentNotification: data.paymentNotification,
+            installments: data.installments,
+            orderCode: data.orderCode,
+        }
 
         console.log("Dados de Pagamento Ajustados: ", orderToSave)
 
@@ -119,6 +115,62 @@ const createPaymentOrder = async (req, res) => {
     }
 }
 
+const savecashOnDelivery = async (req, res) => {
+    try {
+        const data = req.body
+        consoel.log("Salvando pedido de pagamento na entrega: ", data)
+
+        const orderToSave = {
+            amount: data.amount,
+            customerTrns: data.customerTrns,
+            email: data.customer.email,
+            fullName: data.customer.fullName,
+            phone: data.customer.phone,
+            requestLang: data.customer.requestLang,
+            dynamicDescriptor: data.dynamicDescriptor,
+            paymentTimeout: data.paymentTimeout,
+            preauth: data.preauth,
+            allowRecurring: data.allowRecurring,
+            maxInstallments: data.maxInstallments,
+            merchantTrns: data.merchantTrns,
+            paymentNotification: data.paymentNotification,
+            tipAmount: data.tipAmount,
+            disableExactAmount: data.disableExactAmount,
+            disableCash: data.disableCash,
+            disableWallet: data.disableWallet,
+            sourceCode: data.sourceCode,
+            // dados customizados
+            user_info: {
+                name: data.customer.fullName,
+                email: data.customer.email,
+                contact: data.customer.phone,
+                address: data.customerTrns,
+            },
+            shippingCost: data.shippingCost,
+            discount: data.discount || 0,
+            total: data.amount,
+            subtTotal: data.amount,
+            cardInfo: data.cardInfo,
+            status: data.status,
+            paymentMethod: data.paymentMethod,
+            paymentNotification: data.paymentNotification,
+            installments: data.installments,
+            orderCode: data.orderCode,
+        }
+
+        console.log("Salvando pedido de pagamento na entrega: ", orderToSave)
+        const newOrder = new Order(orderToSave);
+        await newOrder.save();
+        res.status(200).json({ message: "Pedido salvo com sucesso." })
+    } catch (error) {
+        console.log("Erro ao salvar pedido: ", error)
+        res.status(400).json({
+            message: "Erro ao salvar pedido." + error
+        })
+        console.log("Erro ao salvar pedido: ", error)
+    }
+}
+
 const getCustomAllOrders = async (req, res) => {
     try {
         const data = req.query
@@ -136,5 +188,6 @@ const getCustomAllOrders = async (req, res) => {
 
 module.exports = {
     createPaymentOrder,
-    getCustomAllOrders
+    getCustomAllOrders,
+    savecashOnDelivery
 }

@@ -94,7 +94,6 @@ const orderSchema = new mongoose.Schema(
             type: String,
             required: false,
         },
-
         cardInfo: {
             type: Object,
             required: false,
