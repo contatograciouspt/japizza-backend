@@ -11,6 +11,7 @@ const {
   forgetPasswordEmailBody,
 } = require("../lib/email-sender/templates/forget-password");
 const OrderCustomizado = require("../models/OrderCustomizado");
+const Order = require("../models/Order");
 
 const verifyEmailAddress = async (req, res) => {
   const isAdded = await Customer.findOne({ email: req.body.email });
@@ -333,7 +334,7 @@ const updateOrderCodeCustomer = async (req, res) => {
     }
 
     // Encontrar o customer pelo email
-    const customer = await OrderCustomizado.findOne({ email });
+    const customer = await Order.findOne({ email });
 
     if (customer) {
       customer.orderCode = orderCode;
