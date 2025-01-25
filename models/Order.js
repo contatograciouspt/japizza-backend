@@ -71,7 +71,7 @@ const orderSchema = new mongoose.Schema(
         },
         subTotal: {
             type: Number,
-            required: true,
+            required: false,
         },
         total: {
             type: Number,
