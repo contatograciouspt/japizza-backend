@@ -60,12 +60,16 @@ const createPaymentOrder = async (req, res) => {
         const orderToSave = {
             orderCode: data.orderCode,
             invoice: data.invoice,
-            cart: data.cart,  // Aqui você precisa garantir que data.cart seja um array de objetos conforme necessário.
+            cart: data.cart,
             user_info: {
                 name: data.customer.fullName,
                 email: data.customer.email,
                 contact: data.customer.phone,
             },
+            paymentNotification: data.paymentNotification,
+            merchantTrns: data.merchantTrns,
+            dynamicDescriptor: data.dynamicDescriptor,
+            amount: data.amount,
             subTotal: data.amount,
             shippingCost: data.shippingCost,
             discount: data.discount || 0,

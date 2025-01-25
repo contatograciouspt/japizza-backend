@@ -8,15 +8,37 @@ const orderSchema = new mongoose.Schema(
             ref: "Customer",
             required: false,
         },
-        orderCode: {
-            type: Number,
-            required: false,
-        },
         invoice: {
             type: Number,
             required: false,
         },
         cart: [{}],
+        // Dados customizados inicio -->
+        orderCode: {
+            type: Number,
+            required: false,
+        },
+        customerTrns: {
+            type: String,
+            required: false,
+        },
+        merchantTrns: {
+            type: String,
+            required: false,
+        },
+        dynamicDescriptor: {
+            type: String,
+            required: false,
+        },
+        amount: {
+            type: Number,
+            required: false,
+        },
+        paymentNotification: {
+            type: Boolean,
+            required: false,
+        },
+        // Dados customizados fim -->
         user_info: {
             name: {
                 type: String,
@@ -51,6 +73,10 @@ const orderSchema = new mongoose.Schema(
             type: Number,
             required: true,
         },
+        total: {
+            type: Number,
+            required: false,
+        },
         shippingCost: {
             type: Number,
             required: false,
@@ -60,11 +86,6 @@ const orderSchema = new mongoose.Schema(
             required: false,
             default: 0,
         },
-
-        total: {
-            type: Number,
-            required: false,
-        },
         shippingOption: {
             type: String,
             required: false,
@@ -73,6 +94,7 @@ const orderSchema = new mongoose.Schema(
             type: String,
             required: false,
         },
+
         cardInfo: {
             type: Object,
             required: false,
