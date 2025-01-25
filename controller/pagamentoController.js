@@ -118,7 +118,7 @@ const createPaymentOrder = async (req, res) => {
 const savecashOnDelivery = async (req, res) => {
     try {
         const data = req.body
-        consoel.log("Salvando pedido de pagamento na entrega: ", data)
+        console.log("Salvando pedido de pagamento na entrega: ", data)
 
         const orderToSave = {
             amount: data.amount,
