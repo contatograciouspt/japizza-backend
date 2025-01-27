@@ -3,7 +3,7 @@ const router = express.Router();
 const { webhookEvents, webhookConnection } = require("../controller/webhookController");
 
 // Rota para verificação do webhook
-router.post("/connection", webhookConnection)
+router.get("/connection", webhookConnection)
 
 // Rota para receber notificações de eventos
 router.post("/events", webhookEvents)
