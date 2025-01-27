@@ -18,6 +18,8 @@ const addGlobalSetting = async (req, res) => {
 
 const getGlobalSetting = async (req, res) => {
   try {
+    // console.log("getGlobalSetting");
+
     const globalSetting = await Setting.findOne({ name: "globalSetting" });
     res.send(globalSetting.setting);
   } catch (err) {
@@ -29,6 +31,7 @@ const getGlobalSetting = async (req, res) => {
 
 const updateGlobalSetting = async (req, res) => {
   try {
+    const setting = req.body.setting;
     const globalSetting = await Setting.updateOne(
       {
         name: "globalSetting",
@@ -36,44 +39,44 @@ const updateGlobalSetting = async (req, res) => {
       {
         $set: {
           "setting.number_of_image_per_product":
-            req.body.setting.number_of_image_per_product,
-          "setting.shop_name": req.body.setting.shop_name,
-          "setting.company_name": req.body.setting.company_name,
-          "setting.address": req.body.setting.address,
-          "setting.vat_number": req.body.setting.vat_number,
-          "setting.post_code": req.body.setting.post_code,
-          "setting.contact": req.body.setting.contact,
-          "setting.email": req.body.setting.email,
-          "setting.website": req.body.setting.website,
-          "setting.receipt_size": req.body.setting.receipt_size,
-          "setting.default_currency": req.body.setting.default_currency,
-          "setting.default_time_zone": req.body.setting.default_time_zone,
-          "setting.default_date_format": req.body.setting.default_date_format,
+            setting.number_of_image_per_product,
+          "setting.shop_name": setting.shop_name,
+          "setting.company_name": setting.company_name,
+          "setting.address": setting.address,
+          "setting.vat_number": setting.vat_number,
+          "setting.post_code": setting.post_code,
+          "setting.contact": setting.contact,
+          "setting.email": setting.email,
+          "setting.website": setting.website,
+          "setting.receipt_size": setting.receipt_size,
+          "setting.default_currency": setting.default_currency,
+          "setting.default_time_zone": setting.default_time_zone,
+          "setting.default_date_format": setting.default_date_format,
 
           //for store setting
-          "setting.cod_status": req.body.setting.cod_status,
-          "setting.stripe_status": req.body.setting.stripe_status,
-          "setting.fb_pixel_status": req.body.setting.fb_pixel_status,
-          "setting.google_login_status": req.body.setting.google_login_status,
-          "setting.google_analytic_status":
-            req.body.setting.google_analytic_status,
-          "setting.stripe_key": req.body.setting.stripe_key,
-          "setting.stripe_secret": req.body.setting.stripe_secret,
-          "setting.google_client_id": req.body.setting.google_client_id,
-          "setting.google_secret_key": req.body.setting.google_secret_key,
-          "setting.google_analytic_key": req.body.setting.google_analytic_key,
-          "setting.fb_pixel_key": req.body.setting.fb_pixel_key,
-          "setting.tawk_chat_status": req.body.setting.tawk_chat_status,
-          "setting.tawk_chat_property_id":
-            req.body.setting.tawk_chat_property_id,
-          "setting.tawk_chat_widget_id": req.body.setting.tawk_chat_widget_id,
+          "setting.cod_status": setting.cod_status,
+          "setting.stripe_status": setting.stripe_status,
+          "setting.fb_pixel_status": setting.fb_pixel_status,
+          "setting.google_login_status": setting.google_login_status,
+          "setting.google_analytic_status": setting.google_analytic_status,
+          "setting.stripe_key": setting.stripe_key,
+          "setting.stripe_secret": setting.stripe_secret,
+          "setting.google_client_id": setting.google_client_id,
+          "setting.google_secret_key": setting.google_secret_key,
+          "setting.google_analytic_key": setting.google_analytic_key,
+          "setting.fb_pixel_key": setting.fb_pixel_key,
+          "setting.tawk_chat_status": setting.tawk_chat_status,
+          "setting.tawk_chat_property_id": setting.tawk_chat_property_id,
+          "setting.tawk_chat_widget_id": setting.tawk_chat_widget_id,
           // //for seo
-          "setting.meta_img": req.body.setting.meta_img,
-          "setting.favicon": req.body.setting.favicon,
-          "setting.meta_title": req.body.setting.meta_title,
-          "setting.meta_description": req.body.setting.meta_description,
-          "setting.meta_keywords": req.body.setting.meta_keywords,
-          "setting.meta_url": req.body.setting.meta_url,
+          "setting.meta_img": setting.meta_img,
+          "setting.favicon": setting.favicon,
+          "setting.meta_title": setting.meta_title,
+          "setting.meta_description": setting.meta_description,
+          "setting.meta_keywords": setting.meta_keywords,
+          "setting.meta_url": setting.meta_url,
+          "setting.email_to_customer": setting.email_to_customer,
+          "setting.from_email": setting.from_email,
         },
       }
     );
@@ -106,6 +109,8 @@ const addStoreSetting = async (req, res) => {
 
 const getStoreSetting = async (req, res) => {
   try {
+    // console.log("getStoreSetting");
+
     const storeSetting = await Setting.findOne({ name: "storeSetting" });
     res.send(storeSetting.setting);
   } catch (err) {
@@ -188,6 +193,7 @@ const addStoreCustomizationSetting = async (req, res) => {
 const getStoreCustomizationSetting = async (req, res) => {
   try {
     const { key, keyTwo } = req.query;
+    // console.log("getStoreCustomizationSetting");
 
     // console.log("req query", req.query, "key", key, "keyTwo", keyTwo);
 

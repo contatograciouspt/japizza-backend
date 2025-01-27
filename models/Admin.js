@@ -60,6 +60,10 @@ const adminSchema = new mongoose.Schema(
         "Accountant",
       ],
     },
+    access_list: {
+      type: Array,
+      required: false,
+    },
     joiningData: {
       type: Date,
       required: false,

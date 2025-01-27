@@ -605,7 +605,7 @@ const setting = [
           en: "FedEx",
           de: "FedEx",
         },
-        shipping_one_cost: 60,
+        shipping_one_cost: 6,
         shipping_one_desc: {
           en: "Delivery: Today Cost :",
           de: "Lieferung: Heute Kosten :",

@@ -8,6 +8,10 @@ const orderSchema = new mongoose.Schema(
             ref: "Customer",
             required: false,
         },
+        email: {
+            type: String,
+            required: false
+        },
         invoice: {
             type: Number,
             required: false,
@@ -18,10 +22,7 @@ const orderSchema = new mongoose.Schema(
             type: Number,
             required: false,
         },
-        customerTrns: {
-            type: String,
-            required: false,
-        },
+        customerTrns: [{}],
         merchantTrns: {
             type: String,
             required: false,

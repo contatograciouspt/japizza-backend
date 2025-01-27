@@ -41,6 +41,8 @@ const getAllLanguages = async (req, res) => {
 
 const getShowingLanguage = async (req, res) => {
   try {
+    // console.log("getShowingLanguage");
+
     // console.log('get showing language')
     const languages = await Language.find({ status: "show" }).sort({
       _id: -1,

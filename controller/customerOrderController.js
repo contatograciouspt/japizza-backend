@@ -1,8 +1,5 @@
 require("dotenv").config();
-const stripe = require("stripe");
-const Razorpay = require("razorpay");
-// const stripe = require("stripe")(`${process.env.STRIPE_KEY}` || null); /// use hardcoded key if env not work
-
+const stripe = require("stripe")(process.env.STRIPE_KEY);
 const mongoose = require("mongoose");
 
 const Order = require("../models/Order");
@@ -30,101 +27,55 @@ const addOrder = async (req, res) => {
 
 //create payment intent for stripe
 const createPaymentIntent = async (req, res) => {
-  const { total: amount, cardInfo: payment_intent, email } = req.body;
-  // console.log("req.body", amount);
-  // Validate the amount that was passed from the client.
-  if (!(amount >= process.env.MIN_AMOUNT && amount <= process.env.MAX_AMOUNT)) {
-    return res.status(500).json({ message: "Invalid amount." });
-  }
-  const storeSetting = await Setting.findOne({ name: "storeSetting" });
-  const stripeSecret = storeSetting?.setting?.stripe_secret;
-  const stripeInstance = stripe(stripeSecret);
-  if (payment_intent.id) {
-    try {
-      const current_intent = await stripeInstance.paymentIntents.retrieve(
-        payment_intent.id
-      );
-      // If PaymentIntent has been created, just update the amount.
-      if (current_intent) {
-        const updated_intent = await stripeInstance.paymentIntents.update(
-          payment_intent.id,
-          {
-            amount: formatAmountForStripe(amount, "usd"),
-          }
-        );
-        // console.log("updated_intent", updated_intent);
-        return res.send(updated_intent);
-      }
-    } catch (err) {
-      if (err.code !== "resource_missing") {
-        const errorMessage =
-          err instanceof Error ? err.message : "Internal server error";
-        return res.status(500).send({ message: errorMessage });
-      }
-    }
-  }
+  console.log("Criar Payment Intent: ", req.body);
+
+  const { metadata } = req.body;
+
   try {
-    // Create PaymentIntent from body params.
-    const params = {
-      amount: formatAmountForStripe(amount, "usd"),
-      currency: "usd",
-      description: process.env.STRIPE_PAYMENT_DESCRIPTION || "",
+    const payment_intent = await stripe.paymentIntents.create({
+      amount: metadata.totalAmount,
+      currency: "eur",
       automatic_payment_methods: {
         enabled: true,
       },
-    };
-    const payment_intent = await stripeInstance.paymentIntents.create(params);
-    // console.log("payment_intent", payment_intent);
+    });
+
+    console.log("payment_intent", payment_intent);
 
     res.send(payment_intent);
   } catch (err) {
+    console.error("Erro ao criar payment intent:", err);
     const errorMessage =
       err instanceof Error ? err.message : "Internal server error";
     res.status(500).send({ message: errorMessage });
   }
 };
 
-const createOrderByRazorPay = async (req, res) => {
-  try {
-    const storeSetting = await Setting.findOne({ name: "storeSetting" });
-    // console.log("createOrderByRazorPay", storeSetting?.setting);
 
-    const instance = new Razorpay({
-      key_id: storeSetting?.setting?.razorpay_id,
-      key_secret: storeSetting?.setting?.razorpay_secret,
-    });
+const createCheckoutSession = async (req, res) => {
+  console.log("Dados para checkout session: ", req.body);
 
-    const options = {
-      amount: req.body.amount * 100,
-      currency: "INR",
-    };
-    const order = await instance.orders.create(options);
-
-    if (!order)
-      return res.status(500).send({
-        message: "Error occurred when creating order!",
-      });
-    res.send(order);
-  } catch (err) {
-    res.status(500).send({
-      message: err.message,
-    });
+  if (req.method !== 'POST') {
+    return res.status(405).json({ message: 'Método não permitido' });
   }
-};
 
-const addRazorpayOrder = async (req, res) => {
+  const { line_items, mode, success_url, cancel_url, customer_email, metadata } = req.body;
+
   try {
-    const newOrder = new Order({
-      ...req.body,
-      user: req.user._id,
-    });
-    const order = await newOrder.save();
-    res.status(201).send(order);
-    handleProductQuantity(order.cart);
-  } catch (err) {
-    res.status(500).send({
-      message: err.message,
-    });
+    const stripeInstance = new stripe(stripeSecret);
+
+    const params = { line_items, mode, success_url, cancel_url, customer_email, metadata };
+    console.log("Params antes da criação da sessão", params);
+
+    const session = await stripeInstance.checkout.sessions.create(params);
+    console.log("session gerada: ", session);
+
+    res.status(200).json({ url: session.url });
+  } catch (error) {
+    console.error("Erro ao criar sessão do stripe:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Internal server error";
+    res.status(500).send({ message: errorMessage });
   }
 };
 
@@ -238,6 +189,5 @@ module.exports = {
   getOrderById,
   getOrderCustomer,
   createPaymentIntent,
-  createOrderByRazorPay,
-  addRazorpayOrder,
+  createCheckoutSession
 };
