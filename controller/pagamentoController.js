@@ -89,10 +89,12 @@ const savecashOnDelivery = async (req, res) => {
         const orderToSave = {
             amount: data.amount,
             customerTrns: data.customerTrns,
-            email: data.customer.email,
-            fullName: data.customer.fullName,
-            phone: data.customer.phone,
-            requestLang: data.customer.requestLang,
+            customer: {
+                email: data.email,
+                fullName: data.fullName,
+                phone: data.phone,
+                requestLang: data.requestLang,
+            },
             dynamicDescriptor: data.dynamicDescriptor,
             paymentTimeout: data.paymentTimeout,
             preauth: data.preauth,
@@ -105,23 +107,7 @@ const savecashOnDelivery = async (req, res) => {
             disableCash: data.disableCash,
             disableWallet: data.disableWallet,
             sourceCode: data.sourceCode,
-            // dados customizados
-            user_info: {
-                name: data.customer.fullName,
-                email: data.customer.email,
-                contact: data.customer.phone,
-            },
-            shippingCost: data.shippingCost,
             cart: data.cart,
-            discount: data.discount || 0,
-            total: data.amount,
-            subtTotal: data.amount,
-            cardInfo: data.cardInfo,
-            status: data.status,
-            paymentMethod: data.paymentMethod,
-            paymentNotification: data.paymentNotification,
-            installments: data.installments,
-            orderCode: data.orderCode,
         }
 
         console.log("Salvando pedido de pagamento na entrega: ", orderToSave)
