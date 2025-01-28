@@ -71,10 +71,7 @@ const createPaymentOrder = async (req, res) => {
             paymentMethod: data.paymentMethod,
             paymentNotification: data.paymentNotification,
             installments: data.installments,
-            orderCode: data.orderCode,
         }
-
-        console.log("Dados de Pagamento Ajustados: ", orderToSave)
 
         // Salvar dados no banco de dados
         const newOrder = new Order(orderToSave);
@@ -101,8 +98,16 @@ const createPaymentOrder = async (req, res) => {
 
         if (orderResponse.status === 200) {
             console.log("Ordem criada no backend: ", orderResponse.data)
-            const newOrderPayLoad = new Order(orderToSave);
-            console.log("Salvando pedido de pagamento: ", newOrderPayLoad)
+
+            // Adicionar orderCode em orderToSave para salvar junto com os outros dados
+
+            const updatedOrderToSave  = {
+                ...orderToSave,
+                orderCode: orderResponse.data.orderCode
+            }
+
+            const newOrderPayLoad = new Order(updatedOrderToSave);
+            console.log("Salvando ordem de pagamento para entrega: ", newOrderPayLoad)
             res.status(200).json({ orderCode: orderResponse.data.orderCode, message: "Ordem de pagamento criada com sucesso." })
         } else {
             res.status(400).json({
@@ -214,7 +219,6 @@ const updateOrderByID = async (req, res) => {
         console.log("Erro ao atualizar pedido: ", error);
     }
 }
-
 
 module.exports = {
     createPaymentOrder,
