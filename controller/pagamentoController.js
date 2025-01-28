@@ -64,7 +64,7 @@ const createPaymentOrder = async (req, res) => {
 
             // Atualizar o pedido com o orderCode
             const updatedOrder = await Order.findByIdAndUpdate(
-                savedInitialOrder._id, // Usamos o ID do pedido salvo inicialmente
+                newOrder._id, // Usamos o ID do pedido salvo inicialmente
                 { $set: { orderCode: orderResponse.data.orderCode } },
                 { new: true } // Retorna o objeto atualizado
             );
