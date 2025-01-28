@@ -13,10 +13,10 @@ router.post("/cashondelivery", savecashOnDelivery)
 router.get("/getallorders", getCustomAllOrders)
 
 // Endpoint para deletar um pedido pelo ID
-router.delete("/deleteorder", deleteOrderByID)
+router.delete("/deleteorder/:id", deleteOrderByID)
 
 // Endpoint para atualizar um pedido pelo ID
-router.put("/updateorder", updateOrderByID)
+router.put("/updateorder/:id", updateOrderByID)
 
 
 module.exports = router;
