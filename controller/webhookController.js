@@ -36,10 +36,10 @@ const webhookEvents = async (req, res) => {
                     const updatedOrder = await Order.findOne({ orderCode: customerOrderCode });
 
                     if (updatedOrder) {
-                        console.log(`Ordem encontrada com sucesso, atualizando status para Pago ${updatedOrder._id}`);
+                        console.log(`Ordem encontrada com sucesso, atualizando status para Pago ${updatedOrder.orderCode}`);
                         updatedOrder.status = 'Pago';
                         await updatedOrder.save();
-                        console.log(`Status da ordem ${updatedOrder._id} atualizado para Pago`);
+                        console.log(`Status da ordem ${updatedOrder.orderCode} atualizado para Pago`);
 
                         // try {
                         //     // 1. Autenticação na ZoneSoft
