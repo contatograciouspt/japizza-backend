@@ -1,7 +1,6 @@
 require("dotenv").config();
 const axios = require("axios");
 const qs = require("qs");
-const OrderCustomizado = require("../models/OrderCustomizado");
 const Order = require("../models/Order");
 
 const createPaymentOrder = async (req, res) => {
@@ -100,13 +99,16 @@ const createPaymentOrder = async (req, res) => {
             console.log("Ordem criada no backend: ", orderResponse.data)
 
             // Adicionar orderCode em orderToSave para salvar junto com os outros dados
-
-            const updatedOrderToSave  = {
+            const updatedOrderToSave = {
                 ...orderToSave,
                 orderCode: orderResponse.data.orderCode
             }
 
+            // Criar uma nova instância do modelo Order com os dados atualizados
             const newOrderPayLoad = new Order(updatedOrderToSave);
+
+            // Salvar a nova ordem no banco de dados
+            await newOrderPayLoad.save();
             console.log("Salvando ordem de pagamento para entrega: ", newOrderPayLoad)
             res.status(200).json({ orderCode: orderResponse.data.orderCode, message: "Ordem de pagamento criada com sucesso." })
         } else {
