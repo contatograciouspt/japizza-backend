@@ -1,7 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const router = express.Router();
-const { createPaymentOrder, getCustomAllOrders, savecashOnDelivery } = require("../controller/pagamentoController");
+const { createPaymentOrder, getCustomAllOrders, deleteOrderByID, updateOrderByID, savecashOnDelivery } = require("../controller/pagamentoController");
 
 // Endpoint para conexão e ordem de pagamento com viva wallet
 router.post("/payment",  createPaymentOrder)
@@ -11,6 +11,12 @@ router.post("/cashondelivery", savecashOnDelivery)
 
 // Endpoint para buscar os pagamentos salvos
 router.get("/getallorders", getCustomAllOrders)
+
+// Endpoint para deletar um pedido pelo ID
+router.delete("/deleteorder", deleteOrderByID)
+
+// Endpoint para atualizar um pedido pelo ID
+router.put("/updateorder", updateOrderByID)
 
 
 module.exports = router;

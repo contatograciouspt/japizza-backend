@@ -101,10 +101,9 @@ const createPaymentOrder = async (req, res) => {
 
         if (orderResponse.status === 200) {
             console.log("Ordem criada no backend: ", orderResponse.data)
-            res.status(200).json({
-                orderCode: orderResponse.data.orderCode,
-                message: "Ordem de pagamento criada com sucesso.",
-            })
+            const newOrderPayLoad = new Order(orderToSave);
+            console.log("Salvando pedido de pagamento: ", newOrderPayLoad)
+            res.status(200).json({ orderCode: orderResponse.data.orderCode, message: "Ordem de pagamento criada com sucesso." })
         } else {
             res.status(400).json({
                 error: orderResponse.response?.data || "Erro ao processar o pagamento.",
@@ -176,7 +175,7 @@ const getCustomAllOrders = async (req, res) => {
         const data = req.query
         console.log("Solicitando dados de pagamento: ", data)
 
-        const orders = await OrderCustomizado.find()
+        const orders = await Order.find()
         res.status(200).json(orders)
     } catch (error) {
         res.status(400).json({
@@ -186,8 +185,41 @@ const getCustomAllOrders = async (req, res) => {
     }
 }
 
+// Função para deletar um pedido pelo ID
+const deleteOrderByID = async (req, res) => {
+    try {
+        const { id } = req.query;
+        console.log("Deletando pedido do ID: ", id);
+        const order = await Order.findByIdAndDelete(id);
+        res.status(200).json(order);
+    } catch (error) {
+        res.status(400).json({
+            message: "Erro ao deletar pedido: " + error
+        });
+        console.log("Erro ao deletar pedido: ", error);
+    }
+}
+
+// Função para atualizar o status de um pedido
+const updateOrderByID = async (req, res) => {
+    try {
+        const { id, status } = req.body;
+        console.log("Atualizando status do pedido: ", id, status);
+        const order = await Order.findByIdAndUpdate(id, { status }, { new: true });
+        res.status(200).json(order);
+    } catch (error) {
+        res.status(400).json({
+            message: "Erro ao atualizar pedido: " + error
+        });
+        console.log("Erro ao atualizar pedido: ", error);
+    }
+}
+
+
 module.exports = {
     createPaymentOrder,
     getCustomAllOrders,
-    savecashOnDelivery
+    savecashOnDelivery,
+    deleteOrderByID,
+    updateOrderByID
 }
