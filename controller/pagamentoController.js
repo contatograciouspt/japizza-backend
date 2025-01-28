@@ -38,7 +38,7 @@ const createPaymentOrder = async (req, res) => {
 
         // Salvar dados no banco de dados
         const newOrder = new Order(orderPayload);
-        await newOrder.save();
+        const savedInitialOrder = await newOrder.save();
 
         const response = await axios.post(demoTokenUrl,
             qs.stringify({ grant_type: "client_credentials" }), {
@@ -60,21 +60,28 @@ const createPaymentOrder = async (req, res) => {
         )
 
         if (orderResponse.status === 200) {
-            console.log("Ordem criada no backend: ", orderResponse.data)
+            console.log("Ordem criada no backend: ", orderResponse.data);
 
             // Atualizar o pedido com o orderCode
             const updatedOrder = await Order.findByIdAndUpdate(
-                newOrder._id, // Usamos o ID do pedido salvo inicialmente
+                savedInitialOrder._id,
                 { $set: { orderCode: orderResponse.data.orderCode } },
                 { new: true } // Retorna o objeto atualizado
             );
-
             console.log("Pedido para entrega (pagamento no e-commerce) atualizado: ", updatedOrder);
-            res.status(200).json({ orderCode: orderResponse.data.orderCode, message: "Ordem de pagamento criada com sucesso." })
+
+            // Envia o objeto atualizado com orderCode para o frontend
+            res.status(200).json({
+                orderCode: orderResponse.data.orderCode,
+                message: "Ordem de pagamento criada com sucesso.",
+            });
         } else {
-            res.status(400).json({
-                error: orderResponse.response?.data || "Erro ao processar o pagamento.",
-            })
+            // Verifica se a resposta do viva wallet existe e manda o erro caso exista
+            const errorMessage = orderResponse.response
+                ? orderResponse.response.data ||
+                "Erro ao processar o pagamento no Viva Wallet."
+                : "Erro ao processar o pagamento.";
+            return res.status(400).json({ error: errorMessage });
         }
     } catch (error) {
         console.log("Erro ao fazer pagamento: ", error)
