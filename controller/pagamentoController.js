@@ -34,6 +34,7 @@ const createPaymentOrder = async (req, res) => {
             disableWallet: data.disableWallet,
             sourceCode: data.sourceCode,
             cart: data.cart,
+            pagamentoNaEntrega: data.pagamentoNaEntrega
         };
 
         // Salvar dados no banco de dados
@@ -68,11 +69,15 @@ const createPaymentOrder = async (req, res) => {
                 { $set: { orderCode: orderResponse.data.orderCode } },
                 { new: true } // Retorna o objeto atualizado
             );
-            console.log("Pedido para entrega (pagamento no e-commerce) atualizado: ", updatedOrder);
+            
+            // Verifica se a atualização foi bem-sucedida
+            if (!updatedOrder) {
+                return res.status(500).json({ error: "Falha ao atualizar o pedido com o orderCode." });
+            }
 
             // Envia o objeto atualizado com orderCode para o frontend
             res.status(200).json({
-                orderCode: orderResponse.data.orderCode,
+                orderCode: updatedOrder.orderCode,
                 message: "Ordem de pagamento criada com sucesso.",
             });
         } else {

@@ -12,6 +12,10 @@ const orderSchema = new mongoose.Schema(
             type: String,
             required: false
         },
+        pagamentoNaEntrega: {
+            type: Boolean,
+            required: false
+        },
         invoice: {
             type: Number,
             required: false,

@@ -324,10 +324,7 @@ const updateOrderCodeCustomer = async (req, res) => {
   try {
     const { email, orderCode } = req.body;
 
-    console.log({
-      "Email": email,
-      "orderCode": orderCode
-    })
+    console.log({ "flag": "Atualizando orderCode do customer", "Email": email, "orderCode": orderCode })
 
     if (!email || !orderCode) {
       return res.status(400).send({ message: "Email e orderCode são obrigatórios." }); // Bad Request
