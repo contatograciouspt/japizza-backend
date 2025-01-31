@@ -21,6 +21,7 @@ const getGlobalSetting = async (req, res) => {
     // console.log("getGlobalSetting");
 
     const globalSetting = await Setting.findOne({ name: "globalSetting" });
+    // console.log("Configurações Globais: ", globalSetting);
     res.send(globalSetting.setting);
   } catch (err) {
     res.status(500).send({
@@ -111,9 +112,10 @@ const getStoreSetting = async (req, res) => {
   try {
     // console.log("getStoreSetting");
 
-    const storeSetting = await Setting.findOne({ name: "storeSetting" });
+    const storeSetting = await Setting.findOne({ name: "storeCustomizationSetting" });
     res.send(storeSetting.setting);
   } catch (err) {
+    console.log("Erro ao obter configurações para a loja: ", err);
     res.status(500).send({
       message: err.message,
     });
@@ -184,6 +186,7 @@ const addStoreCustomizationSetting = async (req, res) => {
       message: "Online Store Customization Setting Added Successfully!",
     });
   } catch (err) {
+    console.log("Erro ao adicionar configurações para a loja: ", err);
     res.status(500).send({
       message: err.message,
     });
@@ -680,11 +683,13 @@ const updateStoreCustomizationSetting = async (req, res) => {
       }
     );
 
+    console.log("Configurações customizadas atualizadas para a loja: ", storeCustomizationSetting);
     res.send({
       data: storeCustomizationSetting.setting,
       message: "Online Store Customization Setting Update Successfully!",
     });
   } catch (err) {
+    console.log("Erro ao atualizar configurações para a loja: ", err);
     res.status(500).send({
       message: err.message,
     });
