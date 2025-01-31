@@ -8,18 +8,11 @@ const language = [
   },
   {
     status: "show",
-    name: "German",
-    iso_code: "de",
-    language_code: "de",
-    flag: "DE",
-  },
-  {
-    status: "show",
-    name: "Bangla",
-    iso_code: "bn",
-    language_code: "bn",
-    flag: "BN",
-  },
+    name: "Portuguese",
+    iso_code: "pt",
+    language_code: "pt",
+    flag: "PT",
+  }
 ];
 
 module.exports = language;
