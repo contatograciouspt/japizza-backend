@@ -28,7 +28,7 @@ const addAllProducts = async (req, res) => {
     await Product.deleteMany();
     await Product.insertMany(req.body);
     res.status(200).send({
-      message: "Product Added successfully!",
+      message: "Produto adicionado com sucesso!",
     });
   } catch (err) {
     res.status(500).send({
@@ -178,10 +178,10 @@ const updateProduct = async (req, res) => {
       product.tag = req.body.tag;
 
       await product.save();
-      res.send({ data: product, message: "Product updated successfully!" });
+      res.send({ data: product, message: "Produto atualizado com sucesso!" });
     } else {
       res.status(404).send({
-        message: "Product Not Found!",
+        message: "Produto não encontrado!",
       });
     }
   } catch (err) {
@@ -216,7 +216,7 @@ const updateManyProducts = async (req, res) => {
       }
     );
     res.send({
-      message: "Products update successfully!",
+      message: "Produto atualizado com sucesso!",
     });
   } catch (err) {
     res.status(500).send({
@@ -241,7 +241,7 @@ const updateStatus = (req, res) => {
         });
       } else {
         res.status(200).send({
-          message: `Product ${newStatus} Successfully!`,
+          message: `Produto ${newStatus} com sucesso!`,
         });
       }
     }
@@ -256,7 +256,7 @@ const deleteProduct = (req, res) => {
       });
     } else {
       res.status(200).send({
-        message: "Product Deleted Successfully!",
+        message: "Produto deletado com sucesso!",
       });
     }
   });
@@ -369,7 +369,7 @@ const deleteManyProducts = async (req, res) => {
     await Product.deleteMany({ _id: req.body.ids });
 
     res.send({
-      message: `Products Delete Successfully!`,
+      message: `Produto deletado com sucesso!`,
     });
   } catch (err) {
     res.status(500).send({

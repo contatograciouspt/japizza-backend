@@ -9,7 +9,7 @@ const addCoupon = async (req, res) => {
   try {
     const newCoupon = new Coupon(req.body);
     await newCoupon.save();
-    res.send({ message: "Coupon Added Successfully!" });
+    res.send({ message: "Cupom adicionado com sucesso!" });
   } catch (err) {
     res.status(500).send({ message: err.message });
   }
@@ -20,7 +20,7 @@ const addAllCoupon = async (req, res) => {
     await Coupon.deleteMany();
     await Coupon.insertMany(req.body);
     res.status(200).send({
-      message: "Coupon Added successfully!",
+      message: "Cupom adicionado com sucesso!",
     });
   } catch (err) {
     res.status(500).send({
@@ -90,10 +90,10 @@ const updateCoupon = async (req, res) => {
       coupon.logo = req.body.logo;
 
       await coupon.save();
-      res.send({ message: "Coupon Updated Successfully!" });
+      res.send({ message: "Cupom atualizado com sucesso!" });
     }
   } catch (err) {
-    res.status(404).send({ message: "Coupon not found!" });
+    res.status(404).send({ message: "Cupom não encontrado!" });
   }
 };
 
@@ -114,7 +114,7 @@ const updateManyCoupons = async (req, res) => {
     );
 
     res.send({
-      message: "Coupons update successfully!",
+      message: "Cupom atualizado com sucesso!",
     });
   } catch (err) {
     res.status(500).send({
@@ -137,7 +137,7 @@ const updateStatus = async (req, res) => {
     );
     res.status(200).send({
       message: `Coupon ${
-        newStatus === "show" ? "Published" : "Un-Published"
+        newStatus === "show" ? "Publicado" : "Não publicado"
       } Successfully!`,
     });
   } catch (err) {
@@ -151,7 +151,7 @@ const deleteCoupon = async (req, res) => {
   try {
     await Coupon.deleteOne({ _id: req.params.id });
     res.status(200).send({
-      message: "Coupon Deleted Successfully!",
+      message: "Cupom deletado com sucesso!",
     });
   } catch (err) {
     res.status(500).send({ message: err.message });
@@ -162,7 +162,7 @@ const deleteManyCoupons = async (req, res) => {
   try {
     await Coupon.deleteMany({ _id: req.body.ids });
     res.send({
-      message: `Coupons Delete Successfully!`,
+      message: `Cupons deletados com sucesso!`,
     });
   } catch (err) {
     res.status(500).send({

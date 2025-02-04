@@ -5,7 +5,7 @@ const addCategory = async (req, res) => {
     const newCategory = new Category(req.body);
     await newCategory.save();
     res.status(200).send({
-      message: "Category Added Successfully!",
+      message: "Categooria adicionada com sucesso!",
     });
   } catch (err) {
     res.status(500).send({
@@ -23,7 +23,7 @@ const addAllCategory = async (req, res) => {
     await Category.insertMany(req.body);
 
     res.status(200).send({
-      message: "Category Added Successfully!",
+      message: "Categoria adicionada com sucesso!",
     });
   } catch (err) {
     console.log(err.message);
@@ -107,7 +107,7 @@ const updateCategory = async (req, res) => {
       category.parentName = req.body.parentName;
 
       await category.save();
-      res.send({ message: "Category Updated Successfully!" });
+      res.send({ message: "Categoria atualizada com sucesso!" });
     }
   } catch (err) {
     res.status(500).send({
@@ -141,7 +141,7 @@ const updateManyCategory = async (req, res) => {
     );
 
     res.send({
-      message: "Categories update successfully!",
+      message: "Categorias atualizadas com sucesso!",
     });
   } catch (err) {
     res.status(500).send({
@@ -166,7 +166,7 @@ const updateStatus = async (req, res) => {
     );
     res.status(200).send({
       message: `Category ${
-        newStatus === "show" ? "Published" : "Un-Published"
+        newStatus === "show" ? "Publicado" : "Não publicado"
       } Successfully!`,
     });
   } catch (err) {
@@ -182,7 +182,7 @@ const deleteCategory = async (req, res) => {
     await Category.deleteOne({ _id: req.params.id });
     await Category.deleteMany({ parentId: req.params.id });
     res.status(200).send({
-      message: "Category Deleted Successfully!",
+      message: "Categotia deletada com sucesso!",
     });
   } catch (err) {
     res.status(500).send({
@@ -217,7 +217,7 @@ const deleteManyCategory = async (req, res) => {
     await Category.deleteMany({ _id: req.body.ids });
 
     res.status(200).send({
-      message: "Categories Deleted Successfully!",
+      message: "Categorias deletadas com sucesso!",
     });
   } catch (err) {
     res.status(500).send({
