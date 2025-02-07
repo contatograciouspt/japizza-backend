@@ -106,10 +106,10 @@
     "_id": {
       "$oid": "62193dbb9cc0ab2feb42aa30"
     },
-    "name": "kachabazar",
-    "email": "kachabazar@gmail.com",
+    "name": "jáPizza",
+    "email": "jáPizza@gmail.com",
     "role": "SuperAdmin",
-    "cname": "kachabazar",
+    "cname": "jáPizza",
     "password": "$2a$10$SPXzslVpeqTCDzb46kC6KumCDLrq56PUGCQddVwrvX3gupz3JQexG",
     "phone": "828-896-3442",
     "createdAt": "2022-02-25T20:36:11.720+00:00",

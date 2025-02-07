@@ -12,7 +12,7 @@
     "product": "node script/product.js",
     "generate-password": "node script/script.js"
   },
-  "author": "Kachabazar",
+  "author": "jáPizza",
   "license": "ISC",
   "dependencies": {
     "@paypal/checkout-server-sdk": "^1.0.3",
