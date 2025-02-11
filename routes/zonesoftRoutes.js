@@ -14,6 +14,9 @@ router.post("/login", zoneSoftLogin);
 // Rota para o endpoint de menu
 router.get("/menu", zoneSoftMenu);
 
+// Rota para enviar pedido usando orderCode
+router.post("/order/:orderCode", zoneSoftOrder);
+
 // Rota para o endpoint de order (recebimento de pedidos)
 router.post("/order", zoneSoftOrder);
 

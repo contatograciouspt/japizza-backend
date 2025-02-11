@@ -79,10 +79,13 @@ const zoneSoftOrder = async (req, res) => {
     try {
         // Recebe o orderCode via parâmetro da URL
         const { orderCode } = req.params
+        console.log("orderCode para enviar pedido para ZoneSoft:", orderCode)
         const order = await Order.findOne({ orderCode: orderCode, status: "Pago" })
         if (!order) {
-            return res.status(404).json({ error: "Order not found or not paid" })
+            return res.status(404).json({ error: "Order não encontrado ou não foi pago" })
         }
+
+        console.log("Order encontrado:", order.orderCode)
 
         // Considera que o pedido possui um array "cart" com pelo menos um objeto contendo as informações do cliente e dos produtos.
         const cartInfo = order.cart[0] || {}
