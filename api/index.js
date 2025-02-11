@@ -21,6 +21,7 @@ const languageRoutes = require("../routes/languageRoutes");
 const notificationRoutes = require("../routes/notificationRoutes");
 const pagamentoRoutes = require("../routes/pagamentoRoutes");
 const webhookRoutes = require("../routes/webhookRoutes");
+const zoneSoftRoutes = require("../routes/zonesoftRoutes");
 const { isAuth, isAdmin } = require("../config/auth");
 // const {
 //   getGlobalSetting,
@@ -60,6 +61,9 @@ app.use("/api/currency/", isAuth, currencyRoutes);
 app.use("/api/language/", languageRoutes);
 app.use("/api/notification/", isAuth, notificationRoutes);
 app.use("/api/webhookevents/", webhookRoutes);
+
+// rotas para zonesoft
+app.use("/api/zonesoft/", zoneSoftRoutes)
 
 //if you not use admin dashboard then these two route will not needed.
 app.use("/api/admin/", adminRoutes);
