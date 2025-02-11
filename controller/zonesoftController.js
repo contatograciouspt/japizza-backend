@@ -169,7 +169,7 @@ const zoneSoftOrder = async (req, res) => {
         res.status(200).json(response.data)
     } catch (error) {
         console.error("Erro ao enviar o pedido:", error.response ? error.response.data : error.message)
-        res.status(500).json({ error: "Erro ao enviar o pedido", details: details })
+        res.status(500).json({ error: "Erro ao enviar o pedido", details: { message: error.message } })
     }
 }
 
