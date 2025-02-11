@@ -3,9 +3,9 @@ const axios = require("axios")
 const crypto = require("crypto")
 
 // Recupera as variáveis de ambiente
-const clientId = process.env.CLIENT_ID
-const appKey = process.env.APP_KEY
-const secretKey = process.env.APP_SECRET
+const clientId = process.env.ZONESOFT_CLIENT_ID
+const appKey = process.env.ZONESOFT_APP_KEY
+const secretKey = process.env.ZONESOFT_APP_SECRET
 const appName = "Japizza"
 const apiUrlOrder = "https://zsroi.zonesoft.org/v1.0/integration/order"
 const apiUrlMenu = "https://zsroi.zonesoft.org/v1.0/integration/menu"
