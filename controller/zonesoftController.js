@@ -25,6 +25,8 @@ function generateHmacSignature(body, secret) {
 const zoneSoftMenu = async (req, res) => {
     try {
         console.log("Iniciando sincronização do menu...", req.params)
+
+        // Busca os produtos ativos e popula a propriedade "categories"
         const products = await Product.find({ status: "show" }).populate("categories")
 
         if (!products || products.length === 0) {
@@ -32,20 +34,41 @@ const zoneSoftMenu = async (req, res) => {
             return res.status(200).json({ message: "Nenhum produto ativo para sincronizar." })
         }
 
+        // Agrupa os produtos por categoria
+        const familiesMap = {}
+        products.forEach(product => {
+            // Determina o ID e nome da categoria:
+            // Se o produto possuir um array "categories" populado, usa o primeiro elemento
+            // caso contrário, utiliza uma categoria padrão.
+            const categoryObj = product.categories && product.categories.length > 0
+                ? product.categories[0]
+                : { _id: "default", name: "Padrão" }
+
+            const catId = categoryObj._id.toString()
+            const catName = categoryObj.name || "Padrão"
+
+            if (!familiesMap[catId]) {
+                familiesMap[catId] = {
+                    id: catId,
+                    name: catName,
+                    subfamilies: [],
+                    products: []
+                }
+            }
+
+            familiesMap[catId].products.push({
+                id: product.productId || product._id.toString(),
+                name: product.title.pt,
+                price: Math.round(product.prices.price * 100).toString(), // preço em centavos
+                tax_rate: "0.00", // ajuste conforme necessário
+                imagem_url: product.image[0] || "",
+                description: product.description.pt
+            })
+        })
+
+        // Converte o mapa para array
         const menu = {
-            families: products.map((product) => ({
-                id: product.categories.length > 0 ? product.categories[0]._id : null,
-                name: product.categories.length > 0 ? product.categories[0].name : "Padrão",
-                subfamilies: [],
-                products: [{
-                    id: product.productId || product._id.toString(),
-                    name: product.title.pt,
-                    price: Math.round(product.prices.price * 100).toString(),
-                    tax_rate: "0.00",
-                    imagem_url: product.image[0] || "",
-                    description: product.description.pt
-                }],
-            }))
+            families: Object.values(familiesMap)
         }
 
         const body = JSON.stringify(menu)
@@ -54,6 +77,7 @@ const zoneSoftMenu = async (req, res) => {
         console.log("Enviando menu para ZoneSoft:", body)
         console.log("Assinatura HMAC:", signature)
 
+        // Envia o JSON do menu para o endpoint da ZoneSoft via POST
         const response = await axios.post(apiUrlMenu, body, {
             headers: {
                 "Content-Type": "application/json",
@@ -64,11 +88,13 @@ const zoneSoftMenu = async (req, res) => {
 
         console.log("Resposta da API de menu:", response.data)
         res.status(200).json(response.data)
+
     } catch (error) {
-        console.error("Erro ao sincronizar o menu:", error)
+        console.error("Erro ao sincronizar o menu:", error.response ? error.response.data : error.message)
         res.status(500).json({ error: "Erro ao sincronizar o menu", details: { message: error.message } })
     }
 }
+
 
 /**
  * Função para enviar um pedido (order) para a ZoneSoft.
