@@ -25,48 +25,48 @@ function generateHmacSignature(body, secret) {
 const zoneSoftMenu = async (req, res) => {
     try {
         console.log("Iniciando sincronização do menu...", req.params)
-        // Consulta os produtos ativos
-        const products = await Product.find({ status: "show" })
+        const products = await Product.find({ status: "show" }).populate("categories")
 
-        // Monta a estrutura do menu – neste exemplo, todos os produtos são agrupados na família "Pizzas".
+        if (!products || products.length === 0) {
+            console.log("Nenhum produto ativo encontrado.")
+            return res.status(200).json({ message: "Nenhum produto ativo para sincronizar." })
+        }
+
         const menu = {
-            families: [
-                {
-                    id: "cat1",
-                    name: "Pizzas",
-                    subfamilies: [],
-                    products: products.map(prod => ({
-                        id: prod.productId || prod._id.toString(),
-                        name: prod.title.pt,
-                        price: Math.round(prod.prices.price * 100), // converte para centavos
-                        tax_rate: "0.00", // ajuste conforme necessário
-                        imagem_url: prod.image[0],
-                        is_alcohol: 0,
-                        description: prod.description.pt
-                    }))
-                }
-            ]
+            families: products.map((product) => ({
+                id: product.categories.length > 0 ? product.categories[0]._id : null,
+                name: product.categories.length > 0 ? product.categories[0].name : "Padrão",
+                subfamilies: [],
+                products: [{
+                    id: product.productId || product._id.toString(),
+                    name: product.title.pt,
+                    price: Math.round(product.prices.price * 100).toString(),
+                    tax_rate: "0.00",
+                    imagem_url: product.image[0] || "",
+                    description: product.description.pt
+                }],
+            }))
         }
 
         const body = JSON.stringify(menu)
         const signature = generateHmacSignature(body, secretKey)
+
         console.log("Enviando menu para ZoneSoft:", body)
         console.log("Assinatura HMAC:", signature)
 
-        // Envia o menu para o endpoint da ZoneSoft via POST
         const response = await axios.post(apiUrlMenu, body, {
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": appKey,
-                "X-Integration-Signature": signature
-            }
+                "X-Integration-Signature": signature,
+            },
         })
 
         console.log("Resposta da API de menu:", response.data)
         res.status(200).json(response.data)
     } catch (error) {
-        console.error("Erro ao sincronizar o menu:", error.response ? error.response.data : error.message)
-        res.status(500).json({ error: "Erro ao sincronizar o menu", details: error.response ? error.response.data : error.message })
+        console.error("Erro ao sincronizar o menu:", error)
+        res.status(500).json({ error: "Erro ao sincronizar o menu", details: { message: error.message } })
     }
 }
 
@@ -93,14 +93,19 @@ const zoneSoftOrder = async (req, res) => {
         const customerInfo = cartInfo.user_info || {}
 
         // Mapeia os produtos do pedido para a estrutura exigida pela ZoneSoft
-        const productItems = (cartInfo.cart || []).map(item => ({
-            quantity: item.quantity,
-            price: Math.round(item.price * 100), // converte para centavos
-            discount: item.prices.discount || 0,
-            name: item.title,
-            id: item.productId,
-            attributes: [] // Se houver atributos, adicione-os aqui conforme necessário
-        }))
+        const productItems = (cartInfo.cart || []).map(item => {
+            const price = Number(item.price)
+            const productID = order._id || {}
+
+            return {
+                quantity: item.quantity,
+                price: Math.round(price * 100),
+                discount: item.prices.discount || 0,
+                name: item.title,
+                id: productID,
+                attributes: []
+            }
+        })
 
         // Monta o objeto do pedido conforme o exemplo da documentação
         const zonesoftOrderData = {
@@ -108,42 +113,35 @@ const zoneSoftOrder = async (req, res) => {
             store_id: clientId,
             type_order: cartInfo.shippingOption === "shipping" ? "DELIVERY" : "PICKUP",
             order_time: new Date(order.createdAt).toISOString().slice(0, 19).replace("T", " "),
-            // Estima o horário de retirada com 30 minutos de acréscimo (ajuste conforme sua lógica)
-            estimated_pickup_time: new Date(new Date(order.createdAt).getTime() + 30 * 60000)
-                .toISOString().slice(0, 19).replace("T", " "),
+            estimated_pickup_time: new Date(new Date(order.createdAt).getTime() + 30 * 60000).toISOString().slice(0, 19).replace("T", " "),
             currency: "EUR",
-            delivery_fee: cartInfo.shippingCost || 0,
-            courier: {
-                name: "", // Preencha se houver dados do entregador
-                phone_number: "",
-                license_plate: ""
-            },
+            delivery_fee: Math.round((cartInfo.shippingCost || 0) * 100), // Certificando que é número e em centavos
             customer: {
                 name: customerInfo.name,
                 phone: customerInfo.contact,
-                nif: "", // Se houver NIF, adicione-o aqui
+                nif: customerInfo.nif || "",
                 email: customerInfo.email
             },
             products: productItems,
             obs: order.customerTrns ? order.customerTrns.join(" ") : "",
             orderIsAlreadyPaid: true,
-            payment_type: 1, // Ajuste conforme necessário (1 - dinheiro, etc.)
+            payment_type: 1,
             delivery_address: {
                 label: customerInfo.address,
-                latitude: "", // Adicione se disponível
+                latitude: "",
                 longitude: ""
             },
             is_picked_up_by_customer: cartInfo.shippingOption !== "shipping",
-            discounted_products_total: 0, // Se houver desconto, ajuste aqui
-            total_customer_to_pay: order.total,
+            discounted_products_total: 0,
+            total_customer_to_pay: Math.round(order.amount),  // Garante que order.amount é um número
             payment_charges: {
-                total: order.amount,
+                total: Math.round(order.amount),
                 sub_total: Math.round((cartInfo.subTotal || 0) * 100),
                 tax: 0,
                 total_fee: 0,
                 total_fee_tax: 0,
                 bag_fee: 0,
-                delivery_fee: (cartInfo.shippingCost || 0) * 100,
+                delivery_fee: Math.round((cartInfo.shippingCost || 0) * 100),
                 delivery_fee_tax: 0,
                 small_order_fee: 0,
                 small_order_fee_tax: 0,
@@ -171,18 +169,6 @@ const zoneSoftOrder = async (req, res) => {
         res.status(200).json(response.data)
     } catch (error) {
         console.error("Erro ao enviar o pedido:", error.response ? error.response.data : error.message)
-        let details = {}
-        if (error.response) {
-            details = {
-                status: error.response.status,
-                data: error.response.data,
-                headers: error.response.headers
-            }
-        } else if (error.request) {
-            details = { request: error.request }
-        } else {
-            details = { message: error.message }
-        }
         res.status(500).json({ error: "Erro ao enviar o pedido", details: details })
     }
 }
