@@ -6,7 +6,7 @@ const {
     zoneSoftMenu,
     zoneSoftOrder,
     zoneSoftPos
-} = require("../controllers/zoneSoftController"); // Importe as funções do controller
+} = require("../controller/zonesoftController"); // Importe as funções do controller
 
 // Rota para o endpoint de login
 router.post("/login", zoneSoftLogin);
