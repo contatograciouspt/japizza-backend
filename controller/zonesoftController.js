@@ -59,11 +59,11 @@ const zoneSoftMenu = async (req, res) => {
 
             familiesMap[catId].products.push({
                 id: product.productId || product._id.toString(),
-                name: product.title.pt,
+                name: product.title?.pt,
                 price: Math.round(product.prices.price * 100).toString(), // preço em centavos
                 tax_rate: "0.00", // ajuste conforme necessário
                 imagem_url: product.image[0] || "",
-                description: product.description.pt
+                description: product.description?.pt
             })
         })
 
