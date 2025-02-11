@@ -1,6 +1,7 @@
 // zoneSoftController.js
 const axios = require("axios")
 const crypto = require("crypto")
+const jwt = require("jsonwebtoken")
 const Product = require("../models/Product")
 const Order = require("../models/Order")
 
@@ -88,7 +89,6 @@ const zoneSoftMenu = async (req, res) => {
 
         console.log("Resposta da API de menu:", response.data)
         res.status(200).json(response.data)
-
     } catch (error) {
         console.error("Erro ao sincronizar o menu:", error.response ? error.response.data : error.message)
         res.status(500).json({ error: "Erro ao sincronizar o menu", details: { message: error.message } })
@@ -207,13 +207,28 @@ const zoneSoftLogin = async (req, res) => {
         const { app_store_username, app_store_secret } = data
 
         if (app_store_username === appKey && app_store_secret === secretKey) {
-            const token = "TOKEN_TESTE"
-            res.status(200).json({
-                message: "Login realizado com sucesso.",
-                token: token
+            // Cria um payload com informações relevantes
+            const payload = {
+                app: appName,
+                clientId: clientId,
+                timestamp: Date.now()
+            }
+            // Gera o token usando JWT com expiração de 1 hora
+            const token = jwt.sign(payload, secretKey, { expiresIn: "1h" })
+            // Retorna a estrutura completa conforme a documentação de integração
+            return res.status(200).json({
+                body: {
+                    access_token: token,
+                    expires_in: 3600 // tempo em segundos
+                },
+                header: {
+                    statusCode: 200,
+                    statusMessage: "OK",
+                    status: "HTTP/1.1 200 OK"
+                }
             })
         } else {
-            res.status(401).json({ error: "Credenciais inválidas." })
+            return res.status(401).json({ error: "Credenciais inválidas." })
         }
     } catch (error) {
         console.error("Erro ao fazer login: ", error)
