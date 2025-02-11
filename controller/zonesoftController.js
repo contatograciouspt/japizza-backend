@@ -24,6 +24,7 @@ function generateHmacSignature(body, secret) {
  */
 const zoneSoftMenu = async (req, res) => {
     try {
+        console.log("Iniciando sincronização do menu...", req.params)
         // Consulta os produtos ativos
         const products = await Product.find({ status: "show" })
 
@@ -154,7 +155,7 @@ const zoneSoftOrder = async (req, res) => {
 
         const body = JSON.stringify(zonesoftOrderData)
         const signature = generateHmacSignature(body, secretKey)
-        console.log("Enviando pedido para ZoneSoft:", body)
+        console.log("Enviando pedido para ZoneSoft...")
         console.log("Assinatura HMAC:", signature)
 
         // Envia o pedido para o endpoint da ZoneSoft via POST
