@@ -152,7 +152,6 @@ const zoneSoftMenu = async (req, res) => {
 
 const zoneSoftOrder = async (req, res) => {
     try {
-        // Recebe orderCode via params
         const { orderCode } = req.params
 
         if (!orderCode) {
@@ -165,86 +164,104 @@ const zoneSoftOrder = async (req, res) => {
             return res.status(404).json({ error: "Order não encontrado ou não foi pago." })
         }
 
-        // 1. Busca no menu da ZoneSoft o produto principal do pedido.
+        // 1. Carrega os dados completos do pedido, com todos os produtos
+        const orderData = JSON.parse(JSON.stringify(order))
+
+        // 2. Busca no menu da ZoneSoft o produto principal do pedido.
         const productName = order.dynamicDescriptor
+
         if (!productName) {
             throw new Error("dynamicDescriptor não informado no pedido.")
         }
 
         // **Busca no documento de menu (collection "menus")**
         const menu = await Menu.findOne({}) // Assumindo que só tem um documento de menu
-
         if (!menu) {
             throw new Error("Menu não encontrado.")
         }
 
-        // **Procura no array products dentro do menu por um item que corresponda**
-        let zoneSoftProduct = null
-        for (const product of menu.products) {
-            if (product.name.includes(productName.slice(3, 10))) {
-                zoneSoftProduct = product
-                break // Encontrou, já pode parar
+        // 3. Iterar sobre os produtos no pedido
+        const productsList = []
+
+        for (const productOrder of orderData.products) { // Ajuste conforme a estrutura real do seu pedido
+            const productNameOrder = productOrder.name
+
+            if (!productNameOrder) {
+                console.log("Nome do produto não encontrado no pedido.")
+                continue // Pula para o próximo produto no loop
             }
-        }
-        console.log(`Produto zonesoft encontrado ${zoneSoftProduct}`)
-        if (!zoneSoftProduct) {
-            throw new Error(`Produto com nome similar a "${productName}" não encontrado no menu da ZoneSoft.`)
-        }
-        console.log(`Id zonesoft do produto encontrado ${zoneSoftProduct.id}`)
+            // **Procura no array products dentro do menu por um item que corresponda**
+            let zoneSoftProduct = null
+            for (const product of menu.products) {
+                // Tenta achar uma correspondência no nome dos produtos
+                if (product.name.toLowerCase().includes(productNameOrder.toLowerCase())) {
+                    zoneSoftProduct = product
+                    break
+                }
+            }
+            // Produto não encontrado no menu da ZoneSoft
+            if (!zoneSoftProduct) {
+                console.log(`Produto com nome "${productNameOrder}" não encontrado no menu da ZoneSoft.`)
+                continue // Pula para o próximo produto no loop
+            }
+            // 4. Montar o item do pedido
+            const productItem = {
+                quantity: productOrder.quantity || 1, // Se tiver a quantidade no pedido, usa. Senão, usa 1.
+                price: Math.round(zoneSoftProduct.price * 100),
+                discount: 0,
+                name: zoneSoftProduct.name,
+                id: zoneSoftProduct.id,
+                attributes: []
+            }
 
-        // 2. Com o ID do produto da ZoneSoft, montar os items do pedido
-        const productItem = {
-            quantity: 1, // Quantidade do produto. Ajuste se precisar de lógica para lidar com múltiplas quantidades.
-            price: Math.round(zoneSoftProduct.price * 100), // Preço do produto em centavos.
-            discount: 0, // Valor do desconto, se houver.
-            name: zoneSoftProduct.name, // Nome do produto.
-            id: zoneSoftProduct.id, // ID do produto da ZoneSoft.
-            attributes: []  // Array de atributos do produto (ex: extras, adicionais).
+            productsList.push(productItem)
         }
 
-        const orderData = JSON.parse(JSON.stringify(order))
+        if (productsList.length === 0) {
+            throw new Error("Nenhum produto do pedido foi encontrado no menu da ZoneSoft.")
+        }
 
-        // Formata os dados do pedido para o formato esperado pela ZoneSoft.
+        // 5. Formatar os dados do pedido para o formato esperado pela ZoneSoft.
         const zonesoftOrderData = {
-            order_id: order.orderCode.toString(), // ID do pedido.
-            store_id: clientId, // ID da loja na ZoneSoft.
-            type_order: orderData.shippingOption === "shipping" ? "DELIVERY" : "PICKUP", // Tipo de pedido (entrega ou retirada).
-            order_time: new Date(order.createdAt).toISOString().slice(0, 19).replace("T", " "), // Data e hora do pedido.
-            estimated_pickup_time: new Date(new Date(order.createdAt).getTime() + 30 * 60000).toISOString().slice(0, 19).replace("T", " "), // Tempo estimado para retirada.
-            currency: "EUR", // Moeda.
-            delivery_fee: Math.round((orderData.shippingCost || 0) * 100), // Taxa de entrega em centavos.
+            order_id: order.orderCode.toString(),
+            store_id: clientId,
+            type_order: orderData.shippingOption === "shipping" ? "DELIVERY" : "PICKUP",
+            order_time: new Date(order.createdAt).toISOString().slice(0, 19).replace("T", " "),
+            estimated_pickup_time: new Date(new Date(order.createdAt).getTime() + 30 * 60000).toISOString().slice(0, 19).replace("T", " "),
+            currency: "EUR",
+            delivery_fee: Math.round((orderData.shippingCost || 0) * 100),
             customer: {
-                name: orderData.customer.name, // Nome do cliente.
-                phone: orderData.customer.contact, // Telefone do cliente.
-                nif: orderData.customer.nif || "", // NIF do cliente.
-                email: orderData.customer.email  // Email do cliente.
+                name: orderData.customer.name,
+                phone: orderData.customer.contact,
+                nif: orderData.customer.nif || "",
+                email: orderData.customer.email
             },
-            products: [productItem], // Lista de produtos no pedido.
-            obs: orderData.customerTrns ? orderData.customerTrns.join(" ") : "", // Observações do pedido.
-            orderIsAlreadyPaid: orderData.orderIsAlreadyPaid === true, // Indica se o pedido já foi pago.
-            payment_type: orderData.payment_type || 1, // Tipo de pagamento.
+            products: productsList, // Usar a lista de produtos criada
+            obs: orderData.customerTrns ? orderData.customerTrns.join(" ") : "",
+            orderIsAlreadyPaid: orderData.orderIsAlreadyPaid === true,
+            payment_type: orderData.payment_type || 1,
             delivery_address: {
-                label: orderData.customer.address, // Endereço de entrega.
-                latitude: "", // Latitude do endereço de entrega.
-                longitude: "" // Longitude do endereço de entrega.
+                label: orderData.customer.address,
+                latitude: "",
+                longitude: ""
             },
-            is_picked_up_by_customer: orderData.shippingOption !== "shipping", // Indica se o pedido será retirado pelo cliente.
-            discounted_products_total: 0, // Total de descontos nos produtos.
-            total_customer_to_pay: Math.round(orderData.total), // Total a pagar pelo cliente em centavos.
+            is_picked_up_by_customer: orderData.shippingOption !== "shipping",
+            discounted_products_total: 0,
+            total_customer_to_pay: Math.round(orderData.total),
             payment_charges: {
-                total: Math.round(orderData.amount), // Total do pagamento.
-                sub_total: Math.round((orderData.subTotal || 0) * 100), // Subtotal em centavos.
-                tax: 0, // Imposto.
-                total_fee: 0, // Taxa total.
-                total_fee_tax: 0, // Imposto sobre a taxa total.
-                bag_fee: 0, // Taxa de sacola.
-                delivery_fee: Math.round((orderData.shippingCost || 0) * 100), // Taxa de entrega em centavos.
-                delivery_fee_tax: 0, // Imposto sobre a taxa de entrega.
-                small_order_fee: 0, // Taxa de pedido pequeno.
-                small_order_fee_tax: 0, // Imposto sobre a taxa de pedido pequeno.
-                pick_and_pack_fee: 0, // Taxa de coleta e embalagem.
-                pick_and_pack_fee_tax: 0, // Imposto sobre a taxa de coleta e embalagem.
-                tip: 0 // Gorjeta.
+                total: Math.round(orderData.amount),
+                sub_total: Math.round((orderData.subTotal || 0) * 100),
+                tax: 0,
+                total_fee: 0,
+                total_fee_tax: 0,
+                bag_fee: 0,
+                delivery_fee: Math.round((orderData.shippingCost || 0) * 100),
+                delivery_fee_tax: 0,
+                small_order_fee: 0,
+                small_order_fee_tax: 0,
+                pick_and_pack_fee: 0,
+                pick_and_pack_fee_tax: 0,
+                tip: 0
             }
         }
 
@@ -265,8 +282,8 @@ const zoneSoftOrder = async (req, res) => {
         console.log("Resposta da API de pedido:", response.data)
         return res.status(200).json(response.data)
     } catch (error) {
-        console.error("Erro ao enviar o pedido (nova versão):", error.response ? error.response.data : error.message)
-        return res.status(500).json({ error: "Erro ao enviar o pedido (nova versão)", details: error.message })
+        console.error("Erro ao enviar o pedido:", error.response ? error.response.data : error.message)
+        return res.status(500).json({ error: "Erro ao enviar o pedido", details: error.message })
     }
 }
 
