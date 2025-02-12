@@ -40,13 +40,12 @@ const webhookEvents = async (req, res) => {
                                 status: (code) => {
                                     return {
                                         json: (obj) => {
-                                            console.log(`Envio para zonesoft executado com sucesso, orderCode: ${customerOrderCode}, status code ${code}`, obj)
+                                            console.log(`Envio para zonesoftController, orderCode: ${customerOrderCode}, status code ${code}`, obj)
                                             return true
                                         }
                                     }
                                 }
                             })
-                            console.log(`Envio para zonesoft executado com sucesso, orderCode: ${customerOrderCode}`)
                         } catch (error) {
                             console.error(`Erro ao enviar pedido para ZoneSoft via webhook:`, error)
                             // Trate o erro adequadamente (e.g., log, retry)

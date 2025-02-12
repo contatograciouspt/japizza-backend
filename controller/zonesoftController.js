@@ -47,69 +47,88 @@ const zoneSoftMenu = async (req, res) => {
 const zoneSoftOrder = async (req, res) => {
     try {
         // 1. Valida o parâmetro orderCode
-        const { orderCode } = req.params;
+        const { orderCode } = req.params
         if (!orderCode) {
-            return res.status(400).json({ error: "orderCode não fornecido." });
+            return res.status(400).json({ error: "orderCode não fornecido." })
         }
 
-        // 2. Busca a order com orderCode e status "Pago"
-        const order = await Order.findOne({ orderCode: orderCode, status: "Pago" });
+        // 2. Busca a order com o orderCode e status "Pago"
+        const order = await Order.findOne({ orderCode: orderCode, status: "Pago" })
         if (!order) {
-            return res.status(404).json({ error: "Order não encontrado ou não foi pago." });
+            return res.status(404).json({ error: "Order não encontrado ou não foi pago." })
         }
 
-        // 3. Carrega os dados completos da order (converte para objeto simples, se necessário)
-        const orderData = JSON.parse(JSON.stringify(order));
+        // 3. Converte a order para objeto simples (caso necessário)
+        const orderData = JSON.parse(JSON.stringify(order))
 
-        // 4. Usa o dynamicDescriptor (nome do produto) da order para fazer o mapeamento
-        const dynamicDescriptor = orderData.dynamicDescriptor;
+        // 4. Usa o dynamicDescriptor da order para mapear o produto
+        const dynamicDescriptor = orderData.dynamicDescriptor
         if (!dynamicDescriptor) {
-            throw new Error("dynamicDescriptor não informado no pedido.");
+            throw new Error("dynamicDescriptor não informado no pedido.")
         }
-        const descriptorNorm = dynamicDescriptor.trim().toLowerCase();
+        const descriptorNorm = dynamicDescriptor.trim().toLowerCase()
 
         // 5. Busca o menu sincronizado – assumindo que o menu mais recente é o utilizado
-        const Menu = require("../models/Menu");
-        const menuDoc = await Menu.findOne({}, {}, { sort: { createdAt: -1 } });
+        const Menu = require("../models/Menu")
+        const menuDoc = await Menu.findOne({}, {}, { sort: { createdAt: -1 } })
         if (!menuDoc || !menuDoc.families) {
-            throw new Error("Menu não encontrado ou sem famílias.");
+            throw new Error("Menu não encontrado ou sem famílias.")
         }
+        console.log("Menu encontrado, continuando...")
 
         // 6. Itera pelas families e subfamilies do menu para encontrar o produto correspondente
-        let matchedMenuProduct = null;
+        // Supondo que cada produto no array seja um objeto com "name" e "id"
+        let matchedMenuProduct = null
         for (const family of menuDoc.families) {
             if (family.subfamilies && Array.isArray(family.subfamilies)) {
                 for (const sub of family.subfamilies) {
                     if (sub.products && Array.isArray(sub.products)) {
                         for (const prod of sub.products) {
-                            // Supondo que cada produto seja um objeto com "name" e "id"
-                            if (prod.name && prod.name.trim().toLowerCase().includes(descriptorNorm)) {
-                                matchedMenuProduct = prod;
-                                break;
+                            // Se prod for objeto, usamos prod.name se for string, comparamos diretamente
+                            let prodName = ""
+                            let prodId = ""
+                            let prodPrice = 0
+                            if (typeof prod === "object" && prod.name) {
+                                prodName = prod.name.trim().toLowerCase()
+                                prodId = prod.id
+                                // Se o produto tiver preço definido (em centavos) use-o caso contrário, deixe 0
+                                prodPrice = prod.price ? Number(prod.price) : 0
+                            } else if (typeof prod === "string") {
+                                // Caso o array contenha apenas strings (ex.: "358"), não temos o nome – então pulamos
+                                continue
+                            }
+                            // Verifica se o nome do produto do menu contém o dynamicDescriptor
+                            if (prodName && prodName.includes(descriptorNorm)) {
+                                matchedMenuProduct = { name: prod.name, id: prodId, price: prodPrice }
+                                break
                             }
                         }
                     }
-                    if (matchedMenuProduct) break;
+                    if (matchedMenuProduct) break
                 }
             }
-            if (matchedMenuProduct) break;
+            if (matchedMenuProduct) break
         }
 
         if (!matchedMenuProduct) {
-            throw new Error(`Nenhum produto correspondente encontrado no menu para: ${dynamicDescriptor}`);
+            throw new Error(`Nenhum produto correspondente encontrado no menu para: ${dynamicDescriptor}`)
+        } else {
+            console.log(`Produto correspondente encontrado no menu: ${matchedMenuProduct.name}`)
         }
 
-        // 7. Monta o item do pedido com os dados obtidos do menu
+        // 7. Monta o item do pedido usando os dados do produto mapeado
+        // Supondo que a quantidade do item seja 1 se o pedido puder ter múltiplos itens, adapte a lógica para iterar pelo array de itens.
         const productItem = {
-            quantity: 1,  // Assumindo 1 para o exemplo; se o pedido contiver mais itens, adapte a lógica
-            price: Number(matchedMenuProduct.price), // Pressupõe que o preço no menu esteja em centavos
+            quantity: 1,
+            price: Number(matchedMenuProduct.price), // Preço já em centavos (conforme salvo no menu)
             discount: 0,
             name: matchedMenuProduct.name,
-            id: matchedMenuProduct.id,  // Esse é o identificador que a ZoneSoft espera
-            attributes: [] // Adicione atributos se aplicável
-        };
+            id: matchedMenuProduct.id,
+            attributes: [] // Inclua atributos se necessário
+        }
 
-        // 8. Monta o objeto do pedido conforme a estrutura exigida pela ZoneSoft
+        // 8. Monta o objeto do pedido conforme o padrão exigido pela ZoneSoft.
+        // Utilize os dados da order (orderData) para preencher os campos.
         const zonesoftOrderData = {
             order_id: order.orderCode.toString(),
             store_id: clientId,
@@ -152,13 +171,13 @@ const zoneSoftOrder = async (req, res) => {
                 pick_and_pack_fee_tax: 0,
                 tip: 0
             }
-        };
+        }
 
-        // 9. Converte o objeto em JSON e gera a assinatura HMAC
-        const body = JSON.stringify(zonesoftOrderData);
-        const signature = generateHmacSignature(body, secretKey);
-        console.log("Enviando pedido para ZoneSoft com os dados mapeados...");
-        console.log("Assinatura HMAC:", signature);
+        // 9. Converte o objeto do pedido para JSON e gera a assinatura HMAC
+        const body = JSON.stringify(zonesoftOrderData)
+        const signature = generateHmacSignature(body, secretKey)
+        console.log("Enviando pedido para ZoneSoft com os dados mapeados...")
+        console.log("Assinatura HMAC:", signature)
 
         // 10. Envia o pedido para o endpoint da ZoneSoft
         const response = await axios.post(apiUrlOrder, body, {
@@ -167,15 +186,15 @@ const zoneSoftOrder = async (req, res) => {
                 "Authorization": appKey,
                 "X-Integration-Signature": signature
             }
-        });
+        })
 
-        console.log("Resposta da API de pedido:", response.data);
-        return res.status(200).json(response.data);
+        console.log("Resposta da API de pedido:", response.data)
+        return res.status(200).json(response.data)
     } catch (error) {
-        console.error("Erro ao enviar o pedido (nova versão):", error.response ? error.response.data : error.message);
-        return res.status(500).json({ error: "Erro ao enviar o pedido (nova versão)", details: error.message });
+        console.error("Erro ao enviar o pedido (nova versão):", error.response ? error.response.data : error.message)
+        return res.status(500).json({ error: "Erro ao enviar o pedido (nova versão)", details: error.message })
     }
-};
+}
 
 
 /**
