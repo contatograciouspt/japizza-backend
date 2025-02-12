@@ -167,11 +167,9 @@ const zoneSoftOrder = async (req, res) => {
         // 1. Carrega os dados completos do pedido, com todos os produtos
         const orderData = JSON.parse(JSON.stringify(order))
 
-        // 2. Busca no menu da ZoneSoft o produto principal do pedido.
-        const productName = order.dynamicDescriptor
-
-        if (!productName) {
-            throw new Error("dynamicDescriptor não informado no pedido.")
+        // **Verifica se o orderData.cart[0].cart existe e é iterável**
+        if (!orderData.cart || !Array.isArray(orderData.cart) || orderData.cart.length === 0 || !orderData.cart[0].cart || !Array.isArray(orderData.cart[0].cart)) {
+            throw new Error("Estrutura do carrinho inválida ou sem produtos.")
         }
 
         // **Busca no documento de menu (collection "menus")**
@@ -180,11 +178,12 @@ const zoneSoftOrder = async (req, res) => {
             throw new Error("Menu não encontrado.")
         }
 
-        // 3. Iterar sobre os produtos no pedido
+        // 2. Iterar sobre os produtos no pedido
         const productsList = []
 
-        for (const productOrder of orderData.products) { // Ajuste conforme a estrutura real do seu pedido
-            const productNameOrder = productOrder.name
+        // **Itera sobre o array de produtos dentro do carrinho**
+        for (const productOrder of orderData.cart[0].cart) { // Acessa o array de produtos correto
+            const productNameOrder = productOrder.title
 
             if (!productNameOrder) {
                 console.log("Nome do produto não encontrado no pedido.")
@@ -204,7 +203,7 @@ const zoneSoftOrder = async (req, res) => {
                 console.log(`Produto com nome "${productNameOrder}" não encontrado no menu da ZoneSoft.`)
                 continue // Pula para o próximo produto no loop
             }
-            // 4. Montar o item do pedido
+            // 3. Montar o item do pedido
             const productItem = {
                 quantity: productOrder.quantity || 1, // Se tiver a quantidade no pedido, usa. Senão, usa 1.
                 price: Math.round(zoneSoftProduct.price * 100),
@@ -221,47 +220,47 @@ const zoneSoftOrder = async (req, res) => {
             throw new Error("Nenhum produto do pedido foi encontrado no menu da ZoneSoft.")
         }
 
-        // 5. Formatar os dados do pedido para o formato esperado pela ZoneSoft.
+        // 4. Formatar os dados do pedido para o formato esperado pela ZoneSoft.
         const zonesoftOrderData = {
             order_id: order.orderCode.toString(),
             store_id: clientId,
-            type_order: orderData.shippingOption === "shipping" ? "DELIVERY" : "PICKUP",
+            type_order: orderData.cart[0].shippingOption === "shipping" ? "DELIVERY" : "PICKUP",
             order_time: new Date(order.createdAt).toISOString().slice(0, 19).replace("T", " "),
             estimated_pickup_time: new Date(new Date(order.createdAt).getTime() + 30 * 60000).toISOString().slice(0, 19).replace("T", " "),
             currency: "EUR",
-            delivery_fee: Math.round((orderData.shippingCost || 0) * 100),
+            delivery_fee: Math.round((orderData.cart[0].shippingCost || 0) * 100),
             customer: {
-                name: orderData.customer.name,
-                phone: orderData.customer.contact,
-                nif: orderData.customer.nif || "",
-                email: orderData.customer.email
+                name: orderData.cart[0].user_info.name,
+                phone: orderData.cart[0].user_info.contact,
+                nif: "", // Ajuste conforme necessário.
+                email: orderData.cart[0].user_info.email
             },
             products: productsList, // Usar a lista de produtos criada
-            obs: orderData.customerTrns ? orderData.customerTrns.join(" ") : "",
-            orderIsAlreadyPaid: orderData.orderIsAlreadyPaid === true,
-            payment_type: orderData.payment_type || 1,
+            obs: orderData.cart[0].customerTrns ? orderData.cart[0].customerTrns.join(" ") : "", // Observações do pedido.
+            orderIsAlreadyPaid: true, // Assumindo que, se chegou até aqui, o pedido está pago.
+            payment_type: 1, // Ajustar conforme necessário.
             delivery_address: {
-                label: orderData.customer.address,
+                label: orderData.cart[0].user_info.address,
                 latitude: "",
                 longitude: ""
             },
-            is_picked_up_by_customer: orderData.shippingOption !== "shipping",
+            is_picked_up_by_customer: orderData.cart[0].shippingOption !== "shipping",
             discounted_products_total: 0,
-            total_customer_to_pay: Math.round(orderData.total),
+            total_customer_to_pay: Math.round(orderData.cart[0].total * 100), // Ajuste aqui também
             payment_charges: {
                 total: Math.round(orderData.amount),
-                sub_total: Math.round((orderData.subTotal || 0) * 100),
-                tax: 0,
-                total_fee: 0,
-                total_fee_tax: 0,
-                bag_fee: 0,
-                delivery_fee: Math.round((orderData.shippingCost || 0) * 100),
-                delivery_fee_tax: 0,
-                small_order_fee: 0,
-                small_order_fee_tax: 0,
-                pick_and_pack_fee: 0,
-                pick_and_pack_fee_tax: 0,
-                tip: 0
+                sub_total: Math.round((orderData.cart[0].subTotal || 0) * 100), // Subtotal em centavos.
+                tax: 0, // Imposto.
+                total_fee: 0, // Taxa total.
+                total_fee_tax: 0, // Imposto sobre a taxa total.
+                bag_fee: 0, // Taxa de sacola.
+                delivery_fee: Math.round((orderData.cart[0].shippingCost || 0) * 100), // Taxa de entrega em centavos.
+                delivery_fee_tax: 0, // Imposto sobre a taxa de entrega.
+                small_order_fee: 0, // Taxa de pedido pequeno.
+                small_order_fee_tax: 0, // Imposto sobre a taxa de pedido pequeno.
+                pick_and_pack_fee: 0, // Taxa de coleta e embalagem.
+                pick_and_pack_fee_tax: 0, // Imposto sobre a taxa de coleta e embalagem.
+                tip: 0 // Gorjeta.
             }
         }
 
