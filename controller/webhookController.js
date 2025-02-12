@@ -40,7 +40,7 @@ const webhookEvents = async (req, res) => {
                                 status: (code) => {
                                     return {
                                         json: (obj) => {
-                                            console.log(`Envio para zonesoftController, orderCode: ${customerOrderCode}, status code ${code}`, obj)
+                                            console.log(`Envio para zonesoftController orderCode: ${customerOrderCode}, status code ${code}`, obj)
                                             return true
                                         }
                                     }

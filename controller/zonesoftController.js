@@ -2,7 +2,6 @@
 const axios = require("axios")
 const crypto = require("crypto")
 const jwt = require("jsonwebtoken")
-const Product = require("../models/Product")
 const Order = require("../models/Order")
 const Menu = require("../models/Menu")
 
@@ -48,6 +47,7 @@ const zoneSoftOrder = async (req, res) => {
     try {
         // 1. Valida o parâmetro orderCode
         const { orderCode } = req.params
+        console.log("orderCode recebido em zoneSoftOrder:", orderCode)
         if (!orderCode) {
             return res.status(400).json({ error: "orderCode não fornecido." })
         }
@@ -67,40 +67,34 @@ const zoneSoftOrder = async (req, res) => {
             throw new Error("dynamicDescriptor não informado no pedido.")
         }
         const descriptorNorm = dynamicDescriptor.trim().toLowerCase()
+        console.log("dynamicDescriptor normalizado:", descriptorNorm)
 
         // 5. Busca o menu sincronizado – assumindo que o menu mais recente é o utilizado
-        const Menu = require("../models/Menu")
         const menuDoc = await Menu.findOne({}, {}, { sort: { createdAt: -1 } })
         if (!menuDoc || !menuDoc.families) {
             throw new Error("Menu não encontrado ou sem famílias.")
         }
         console.log("Menu encontrado, continuando...")
 
-        // 6. Itera pelas families e subfamilies do menu para encontrar o produto correspondente
-        // Supondo que cada produto no array seja um objeto com "name" e "id"
+        // 6. Itera sobre as families e subfamilies para encontrar o produto correspondente.
         let matchedMenuProduct = null
         for (const family of menuDoc.families) {
             if (family.subfamilies && Array.isArray(family.subfamilies)) {
                 for (const sub of family.subfamilies) {
                     if (sub.products && Array.isArray(sub.products)) {
                         for (const prod of sub.products) {
-                            // Se prod for objeto, usamos prod.name se for string, comparamos diretamente
-                            let prodName = ""
-                            let prodId = ""
-                            let prodPrice = 0
+                            // Aqui, assumimos que cada produto é um objeto com "name" e "id".
+                            // Caso o produto seja uma string, pulamos.
                             if (typeof prod === "object" && prod.name) {
-                                prodName = prod.name.trim().toLowerCase()
-                                prodId = prod.id
-                                // Se o produto tiver preço definido (em centavos) use-o caso contrário, deixe 0
-                                prodPrice = prod.price ? Number(prod.price) : 0
-                            } else if (typeof prod === "string") {
-                                // Caso o array contenha apenas strings (ex.: "358"), não temos o nome – então pulamos
-                                continue
-                            }
-                            // Verifica se o nome do produto do menu contém o dynamicDescriptor
-                            if (prodName && prodName.includes(descriptorNorm)) {
-                                matchedMenuProduct = { name: prod.name, id: prodId, price: prodPrice }
-                                break
+                                const prodName = prod.name.trim().toLowerCase()
+                                if (prodName.includes(descriptorNorm)) {
+                                    matchedMenuProduct = {
+                                        name: prod.name,
+                                        id: prod.id,
+                                        price: prod.price ? Number(prod.price) : 0
+                                    }
+                                    break
+                                }
                             }
                         }
                     }
@@ -117,18 +111,18 @@ const zoneSoftOrder = async (req, res) => {
         }
 
         // 7. Monta o item do pedido usando os dados do produto mapeado
-        // Supondo que a quantidade do item seja 1 se o pedido puder ter múltiplos itens, adapte a lógica para iterar pelo array de itens.
+        // Para este exemplo, consideramos quantidade 1 (ajuste conforme necessário)
         const productItem = {
             quantity: 1,
             price: Number(matchedMenuProduct.price), // Preço já em centavos (conforme salvo no menu)
             discount: 0,
             name: matchedMenuProduct.name,
-            id: matchedMenuProduct.id,
+            id: matchedMenuProduct.id,  // Este id é o que a ZoneSoft espera
             attributes: [] // Inclua atributos se necessário
         }
 
-        // 8. Monta o objeto do pedido conforme o padrão exigido pela ZoneSoft.
-        // Utilize os dados da order (orderData) para preencher os campos.
+        // 8. Monta o objeto do pedido conforme a estrutura exigida pela ZoneSoft.
+        // Utilize os dados da order (orderData) para preencher os demais campos.
         const zonesoftOrderData = {
             order_id: order.orderCode.toString(),
             store_id: clientId,
@@ -195,6 +189,7 @@ const zoneSoftOrder = async (req, res) => {
         return res.status(500).json({ error: "Erro ao enviar o pedido (nova versão)", details: error.message })
     }
 }
+
 
 
 /**
