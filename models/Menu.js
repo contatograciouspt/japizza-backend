@@ -5,9 +5,12 @@ const menuSchema = new mongoose.Schema(
     {
         families: {
             type: Array,
-            required: true,
+            required: false,
         },
-        // Você pode adicionar outros campos, como data de sincronização, status, etc.
+        products: {
+            type: Array,
+            required: false,
+        }
     },
     { timestamps: true }
 );
