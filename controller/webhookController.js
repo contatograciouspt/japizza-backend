@@ -35,17 +35,8 @@ const webhookEvents = async (req, res) => {
                         // **Chama a função zoneSoftOrder para enviar o pedido**
                         try {
                             console.log(`Iniciando envio do pedido para ZoneSoft, orderCode: ${customerOrderCode}`)
-                            // **Simula a request e response
-                            await zoneSoftOrder({ params: { orderCode: customerOrderCode } }, {
-                                status: (code) => {
-                                    return {
-                                        json: (obj) => {
-                                            console.log(`Envio para zonesoftController orderCode: ${customerOrderCode}, status code ${code}`, obj)
-                                            return true
-                                        }
-                                    }
-                                }
-                            })
+                            // Chame a função zoneSoftOrder para enviar o pedido
+                            await zoneSoftOrder({ params: { orderCode: customerOrderCode } })
                         } catch (error) {
                             console.error(`Erro ao enviar pedido para ZoneSoft via webhook:`, error)
                             // Trate o erro adequadamente (e.g., log, retry)
