@@ -34,7 +34,7 @@ const zoneSoftMenu = async (req, res) => {
         // Salva o menu recebido no banco de dados (pode ser feito como novo documento ou atualização, conforme sua lógica)
         // Exemplo: cria um novo registro (você pode implementar lógica para atualizar o menu existente se necessário)
         await Menu.create(menuData)
-        console.log("Menu salvo com sucesso:", menuSaved)
+        console.log("Menu salvo com sucesso:", menuData)
 
         // retornar status 204 conforme documentação da ZoneSoft (sem corpo)
         return res.status(204).end()
