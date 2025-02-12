@@ -6,10 +6,6 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: false,
     },
-    zoneSoftId: {    // Novo campo para armazenar o ID do produto conforme o menu sincronizado
-      type: String,
-      required: false,
-    },
     sku: {
       type: String,
       required: false,
