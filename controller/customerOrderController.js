@@ -1,12 +1,12 @@
 require("dotenv").config();
-const stripe = require("stripe")(process.env.STRIPE_KEY);
+// const stripe = require("stripe")(process.env.STRIPE_KEY);
 const mongoose = require("mongoose");
 
 const Order = require("../models/Order");
 const Setting = require("../models/Setting");
 
 const { handleProductQuantity } = require("../lib/stock-controller/others");
-const { formatAmountForStripe } = require("../lib/stripe/stripe");
+// const { formatAmountForStripe } = require("../lib/stripe/stripe");
 
 const addOrder = async (req, res) => {
   // console.log("addOrder", req.body);
@@ -26,58 +26,58 @@ const addOrder = async (req, res) => {
 };
 
 //create payment intent for stripe
-const createPaymentIntent = async (req, res) => {
-  console.log("Criar Payment Intent: ", req.body);
+// const createPaymentIntent = async (req, res) => {
+//   console.log("Criar Payment Intent: ", req.body);
 
-  const { metadata } = req.body;
+//   const { metadata } = req.body;
 
-  try {
-    const payment_intent = await stripe.paymentIntents.create({
-      amount: metadata.totalAmount,
-      currency: "eur",
-      automatic_payment_methods: {
-        enabled: true,
-      },
-    });
+//   try {
+//     const payment_intent = await stripe.paymentIntents.create({
+//       amount: metadata.totalAmount,
+//       currency: "eur",
+//       automatic_payment_methods: {
+//         enabled: true,
+//       },
+//     });
 
-    console.log("payment_intent", payment_intent);
+//     console.log("payment_intent", payment_intent);
 
-    res.send(payment_intent);
-  } catch (err) {
-    console.error("Erro ao criar payment intent:", err);
-    const errorMessage =
-      err instanceof Error ? err.message : "Internal server error";
-    res.status(500).send({ message: errorMessage });
-  }
-};
+//     res.send(payment_intent);
+//   } catch (err) {
+//     console.error("Erro ao criar payment intent:", err);
+//     const errorMessage =
+//       err instanceof Error ? err.message : "Internal server error";
+//     res.status(500).send({ message: errorMessage });
+//   }
+// };
 
 
-const createCheckoutSession = async (req, res) => {
-  console.log("Dados para checkout session: ", req.body);
+// const createCheckoutSession = async (req, res) => {
+//   console.log("Dados para checkout session: ", req.body);
 
-  if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Método não permitido' });
-  }
+//   if (req.method !== 'POST') {
+//     return res.status(405).json({ message: 'Método não permitido' });
+//   }
 
-  const { line_items, mode, success_url, cancel_url, customer_email, metadata } = req.body;
+//   const { line_items, mode, success_url, cancel_url, customer_email, metadata } = req.body;
 
-  try {
-    const stripeInstance = new stripe(stripeSecret);
+//   try {
+//     const stripeInstance = new stripe(stripeSecret);
 
-    const params = { line_items, mode, success_url, cancel_url, customer_email, metadata };
-    console.log("Params antes da criação da sessão", params);
+//     const params = { line_items, mode, success_url, cancel_url, customer_email, metadata };
+//     console.log("Params antes da criação da sessão", params);
 
-    const session = await stripeInstance.checkout.sessions.create(params);
-    console.log("session gerada: ", session);
+//     const session = await stripeInstance.checkout.sessions.create(params);
+//     console.log("session gerada: ", session);
 
-    res.status(200).json({ url: session.url });
-  } catch (error) {
-    console.error("Erro ao criar sessão do stripe:", error);
-    const errorMessage =
-      error instanceof Error ? error.message : "Internal server error";
-    res.status(500).send({ message: errorMessage });
-  }
-};
+//     res.status(200).json({ url: session.url });
+//   } catch (error) {
+//     console.error("Erro ao criar sessão do stripe:", error);
+//     const errorMessage =
+//       error instanceof Error ? error.message : "Internal server error";
+//     res.status(500).send({ message: errorMessage });
+//   }
+// };
 
 // get all orders user
 const getOrderCustomer = async (req, res) => {
@@ -188,6 +188,6 @@ module.exports = {
   addOrder,
   getOrderById,
   getOrderCustomer,
-  createPaymentIntent,
-  createCheckoutSession
+  // createPaymentIntent,
+  // createCheckoutSession
 };

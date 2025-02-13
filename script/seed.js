@@ -1,5 +1,5 @@
 require("dotenv").config();
-const { connectDB } = require("../config/db");
+// const { connectDB } = require("../config/db");
 
 const Admin = require("../models/Admin");
 const adminData = require("../utils/admin");
@@ -31,7 +31,7 @@ const attributeData = require("../utils/attributes");
 const Setting = require("../models/Setting");
 const settingData = require("../utils/settings");
 
-connectDB();
+// connectDB();
 const importData = async () => {
   try {
     await Language.deleteMany();

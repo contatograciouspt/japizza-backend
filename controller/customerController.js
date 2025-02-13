@@ -10,7 +10,6 @@ const {
 const {
   forgetPasswordEmailBody,
 } = require("../lib/email-sender/templates/forget-password");
-const OrderCustomizado = require("../models/OrderCustomizado");
 const Order = require("../models/Order");
 
 const verifyEmailAddress = async (req, res) => {

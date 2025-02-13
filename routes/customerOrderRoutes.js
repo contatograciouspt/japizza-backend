@@ -12,10 +12,10 @@ const {
 router.post("/add", addOrder);
 
 // create stripe payment intent
-router.post("/create-payment-intent", createPaymentIntent);
+// router.post("/create-payment-intent", createPaymentIntent);
 
 // create stripe checkout session
-router.post("/create-checkout-session", createCheckoutSession);
+// router.post("/create-checkout-session", createCheckoutSession);
 
 //get a order by id
 router.get("/:id", getOrderById);
