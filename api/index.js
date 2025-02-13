@@ -6,7 +6,7 @@ const path = require("path");
 // const http = require("http");
 // const { Server } = require("socket.io");
 
-// const { connectDB } = require("../config/db");
+const { connectDB } = require("../config/db");
 const productRoutes = require("../routes/productRoutes");
 const customerRoutes = require("../routes/customerRoutes");
 const adminRoutes = require("../routes/adminRoutes");
@@ -28,7 +28,7 @@ const { isAuth, isAdmin } = require("../config/auth");
 //   getStoreCustomizationSetting,
 // } = require("../lib/notification/setting");
 
-// connectDB();
+connectDB();
 const app = express();
 
 // We are using this for the express-rate-limit middleware
@@ -87,4 +87,4 @@ const PORT = process.env.PORT || 5000;
 
 // const server = http.createServer(app);
 
-app.listen(PORT, () => console.log(`server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
