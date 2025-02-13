@@ -46,25 +46,29 @@ const zoneSoftMenu = async (req, res) => {
 
 const zoneSoftOrder = async (req, res) => {
     try {
-        // 1. Valida o parâmetro orderCode
-        const { orderCode } = req.params
-        console.log("orderCode recebido em zoneSoftOrder:", orderCode)
-        if (!orderCode) {
-            return res.status(400).json({ error: "orderCode não fornecido." })
+        // Permite que a função seja chamada passando diretamente uma string como orderCode,
+        // ou um objeto de requisição com req.params.orderCode.
+        let orderCode
+        if (req && req.params && req.params.orderCode) {
+            orderCode = req.params.orderCode
+        } else if (typeof req === "string") {
+            orderCode = req
+        } else {
+            throw new Error("orderCode não fornecido.")
         }
+        console.log("orderCode recebido em zoneSoftOrder:", orderCode)
 
         // 2. Busca a order com o orderCode e status "Pago"
         const order = await Order.findOne({ orderCode: orderCode, status: "Pago" })
         if (!order) {
-            return res.status(404).json({ error: "Order não encontrado ou não foi pago." })
+            return res ? res.status(404).json({ error: "Order não encontrado ou não foi pago." })
+                : Promise.reject(new Error("Order não encontrado ou não foi pago."))
         }
 
         // 3. Converte a order para objeto simples (caso necessário)
         const orderData = JSON.parse(JSON.stringify(order))
 
-        // 4. Extrai o item do pedido:
-        // Considerando que a estrutura da order é:
-        // { cart: [ { ... , cart: [ { productId, quantity, prices, ... }, ... ] } ], ... }
+        // 4. Extrai o item do pedido do primeiro grupo de itens (ajuste se houver múltiplos)
         const orderItem =
             orderData.cart &&
                 orderData.cart.length > 0 &&
@@ -87,7 +91,7 @@ const zoneSoftOrder = async (req, res) => {
         }
         console.log("zoneSoftId do produto encontrado:", product.zoneSoftId)
 
-        // 6. Busca o menu sincronizado – assumindo que o menu mais recente é o utilizado
+        // 6. Busca o menu sincronizado – assume o menu mais recente
         const menuDoc = await Menu.findOne({}, {}, { sort: { createdAt: -1 } })
         if (!menuDoc || !menuDoc.products) {
             throw new Error("Menu não encontrado ou sem produtos.")
@@ -110,15 +114,14 @@ const zoneSoftOrder = async (req, res) => {
         // 8. Monta o item do pedido usando os dados obtidos
         const productItem = {
             quantity: orderItem.quantity || 1,
-            price: Number(matchedMenuProduct.price), // Preço já em centavos (conforme salvo no menu)
+            price: Number(matchedMenuProduct.price), // Preço conforme salvo no menu (em centavos)
             discount: orderItem.prices ? (orderItem.prices.discount || 0) : 0,
             name: matchedMenuProduct.name,
-            id: matchedMenuProduct.id, // Esse id é o que a ZoneSoft espera
-            attributes: [] // Adicione atributos, se necessário.
+            id: matchedMenuProduct.id, // Este é o id que a ZoneSoft espera
+            attributes: [] // Adicione atributos se necessário
         }
 
-        // 9. Monta o objeto do pedido conforme a estrutura exigida pela ZoneSoft,
-        //    utilizando os dados da order.
+        // 9. Monta o objeto do pedido conforme a estrutura exigida pela ZoneSoft
         const zonesoftOrderData = {
             order_id: order.orderCode.toString(),
             store_id: clientId,
@@ -179,12 +182,15 @@ const zoneSoftOrder = async (req, res) => {
         })
 
         console.log("Resposta da API de pedido:", response.data)
-        return res.status(200).json(response.data)
+        return res ? res.status(200).json(response.data) : response.data
     } catch (error) {
         console.error("Erro ao enviar o pedido (nova versão):", error.response ? error.response.data : error.message)
-        return res.status(500).json({ error: "Erro ao enviar o pedido (nova versão)", details: error.message })
+        return res
+            ? res.status(500).json({ error: "Erro ao enviar o pedido (nova versão)", details: error.message })
+            : Promise.reject(error)
     }
 }
+
 
 
 
