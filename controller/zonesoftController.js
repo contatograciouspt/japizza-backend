@@ -92,8 +92,7 @@ const zoneSoftOrder = async (req, res) => {
         }
         console.log("Menu encontrado, continuando...")
 
-        // 7. Procura no array "products" do menu um objeto cujo campo "id" seja igual ao product.zoneSoftId,
-        // convertendo ambos para string para evitar problemas de tipo.
+        // 7. Procura no array "products" do menu um objeto cujo campo "id" seja igual ao product.zoneSoftId
         let matchedMenuProduct = null
         for (const prod of menuDoc.products) {
             if (typeof prod === "object" && String(prod.id) === String(product.zoneSoftId)) {
@@ -104,24 +103,19 @@ const zoneSoftOrder = async (req, res) => {
         if (!matchedMenuProduct) {
             throw new Error(`Produto com zoneSoftId ${product.zoneSoftId} não encontrado no menu.`)
         }
-        console.log(`Produto correspondente encontrado no menu: ${matchedMenuProduct?.name}`)
-
-        // instanciar uma variavel para associar ao nome do produto encontrado no menu
-        const productName = matchedMenuProduct[0]?.name || ""
-        console.log(`Nome do produto encontrado no menu: ${productName}`)
+        console.log(`Produto correspondente encontrado no menu: ${matchedMenuProduct.name}`)
 
         // 8. Monta o item do pedido usando os dados obtidos
         const productItem = {
             quantity: orderItem.quantity || 1,
             price: Number(matchedMenuProduct.price), // Preço conforme salvo no menu (em centavos)
             discount: orderItem.prices ? (orderItem.prices.discount || 0) : 0,
-            name: productName,
-            id: matchedMenuProduct.id || "",
-            attributes: [] // Adicione atributos se necessário
+            name: matchedMenuProduct.name || "", // Usa o nome diretamente do objeto
+            id: matchedMenuProduct.id || "", // Esse id é o que a ZoneSoft espera
+            attributes: [] // Adicione atributos, se necessário
         }
 
-        // 9. Monta o objeto do pedido conforme a estrutura exigida pela ZoneSoft,
-        //    utilizando os dados da order.
+        // 9. Monta o objeto do pedido conforme a estrutura exigida pela ZoneSoft, utilizando os dados da order.
         const zonesoftOrderData = {
             order_id: order.orderCode.toString(),
             store_id: clientId,
@@ -192,7 +186,6 @@ const zoneSoftOrder = async (req, res) => {
             : Promise.reject(error)
     }
 }
-
 
 
 /**
