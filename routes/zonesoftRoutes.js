@@ -1,24 +1,22 @@
-// zoneSoftRoutes.js
 const express = require("express");
 const router = express.Router();
 const {
     zoneSoftLogin,
     zoneSoftMenu,
-    zoneSoftOrder,
+    zoneSoftOrderStatus,
     zoneSoftPos
-} = require("../controller/zonesoftController"); // Importe as funções do controller
+} = require("../controller/zonesoftController");
 
 // Rota para o endpoint de login
 router.post("/login", zoneSoftLogin);
 
-// Rota para o endpoint de menu
+// Rota para o endpoint de menu (recebe e salva o menu sincronizado)
 router.post("/menu", zoneSoftMenu);
 
-// Rota para enviar pedido usando orderCode
-router.post("/order/:orderCode", zoneSoftOrder);
-router.post("/order", zoneSoftOrder);
+// Rota para atualizar o status do pedido
+router.post("/order/status", zoneSoftOrderStatus);
 
-// Rota para o endpoint de POS (confirmação de recebimento)
+// Rota para o endpoint de POS (confirmação de recebimento/status do POS)
 router.post("/pos", zoneSoftPos);
 
 module.exports = router;
