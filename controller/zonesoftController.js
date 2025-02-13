@@ -93,7 +93,7 @@ const zoneSoftOrder = async (req, res) => {
         console.log("Menu encontrado, continuando...")
 
         // 7. Procura no array "products" do menu um objeto cujo campo "id" seja igual ao product.zoneSoftId
-        let matchedMenuProduct = null
+        const matchedMenuProduct = null
         for (const prod of menuDoc.products) {
             if (typeof prod === "object" && String(prod.id) === String(product.zoneSoftId)) {
                 matchedMenuProduct = prod
@@ -106,8 +106,8 @@ const zoneSoftOrder = async (req, res) => {
         console.log(`Produto correspondente encontrado no menu: ${matchedMenuProduct.name}`)
 
         // Faz o replace diretamente no matchedMenuProduct.name (sem [0])
-        const productName = matchedMenuProduct.name
-            ? matchedMenuProduct.name.replace(/^\d+\s*/, "")
+        const productName = matchedMenuProduct?.name
+            ? matchedMenuProduct?.name.replace(/^\d+\s*/, "")
             : ""
         console.log(`Nome do produto encontrado no menu: ${productName}`)
 
@@ -141,10 +141,10 @@ const zoneSoftOrder = async (req, res) => {
             currency: "EUR",
             delivery_fee: Math.round((orderData.shippingCost || 0) * 100),
             customer: {
-                name: orderData.customer.name || "",
-                phone: orderData.customer.contact || "",
-                nif: orderData.customer.nif || "",
-                email: orderData.customer.email || "",
+                name: orderData.cart.user_info.name || "",
+                phone: orderData.cart.user_info.contact || "",
+                nif: "Não informado",
+                email: orderData.cart.user_info.email || "",
             },
             products: [productItem],
             obs: orderData.customerTrns ? orderData.customerTrns.join(" ") : "",
@@ -152,8 +152,8 @@ const zoneSoftOrder = async (req, res) => {
             payment_type: orderData.payment_type || 1,
             delivery_address: {
                 label: orderData.customer.address,
-                latitude: "",
-                longitude: ""
+                latitude: orderData.merchantTrns,
+                longitude: orderData.merchantTrns
             },
             is_picked_up_by_customer: orderData.shippingOption !== "shipping",
             discounted_products_total: 0,
@@ -175,12 +175,12 @@ const zoneSoftOrder = async (req, res) => {
             }
         }
 
-        console.log("Pedido pronto para ZoneSoft:", zonesoftOrderData)
+        console.log("Pedido pronto para ZoneSoft: ", zonesoftOrderData)
 
-        const postmanData = req.body
-        console.log("Dados Postman: ", postmanData)
+        // const postmanData = req.body
+        // console.log("Dados Postman: ", postmanData)
         // 10. Converte o objeto do pedido para JSON e gera a assinatura HMAC
-        const body = JSON.stringify(postmanData)
+        const body = JSON.stringify(zonesoftOrderData)
         const signature = generateHmacSignature(body, secretKey)
         console.log("Enviando pedido para ZoneSoft com os dados mapeados...")
         console.log("Assinatura HMAC:", signature)
@@ -212,39 +212,38 @@ const zoneSoftOrder = async (req, res) => {
 
 const zoneSoftOrderStatus = async (req, res) => {
     try {
-        const { order_id, status } = req.body; // order_id é o mesmo que zoneSoftId do produto
+        const { order_id, status } = req.body // order_id é o mesmo que zoneSoftId do produto
         if (!order_id || !status) {
-            return res.status(400).json({ error: "order_id and status are required." });
+            return res.status(400).json({ error: "order_id and status are required." })
         }
 
         // Encontra o produto usando o zoneSoftId
-        const product = await Product.findOne({ zoneSoftId: order_id });
+        const product = await Product.findOne({ zoneSoftId: order_id })
         if (!product) {
-            return res.status(404).json({ error: `Produto com zoneSoftId ${order_id} não encontrado.` });
+            return res.status(404).json({ error: `Produto com zoneSoftId ${order_id} não encontrado.` })
         }
 
         // Encontra uma order com status "Pago" que contenha esse produto
         const order = await Order.findOne({
             status: "Pago",
             "cart.cart.productId": product.productId
-        });
+        })
         if (!order) {
-            return res.status(404).json({ error: "Order não encontrado para o produto informado." });
+            return res.status(404).json({ error: "Order não encontrado para o produto informado." })
         }
 
         // Atualiza o status da ordem para o novo status recebido
-        order.status = status;
-        await order.save();
-        console.log(`Order ${order.orderCode} atualizada para status: ${status}`);
+        order.status = status
+        await order.save()
+        console.log(`Order ${order.orderCode} atualizada para status: ${status}`)
 
         // Retorna 204 No Content conforme exigido
-        return res.status(204).end();
+        return res.status(204).end()
     } catch (error) {
-        console.error("Erro em zoneSoftOrderStatus:", error.message);
-        return res.status(500).json({ error: "Erro ao atualizar o status do pedido", details: error.message });
+        console.error("Erro em zoneSoftOrderStatus:", error.message)
+        return res.status(500).json({ error: "Erro ao atualizar o status do pedido", details: error.message })
     }
-};
-
+}
 
 /**
  * Endpoint de login que gera um token JWT e, opcionalmente, dispara a sincronização do menu.
@@ -272,14 +271,14 @@ const zoneSoftLogin = async (req, res) => {
 
 const zoneSoftPos = async (req, res) => {
     try {
-        console.log("Dados de POS recebidos:", req.body);
+        console.log("Dados de POS recebidos:", req.body)
         // Aqui você pode adicionar lógica adicional se necessário.
-        return res.status(204).end();
+        return res.status(204).end()
     } catch (error) {
-        console.error("Erro em zoneSoftPos:", error.message);
-        return res.status(500).json({ error: "Erro ao processar status do POS", details: error.message });
+        console.error("Erro em zoneSoftPos:", error.message)
+        return res.status(500).json({ error: "Erro ao processar status do POS", details: error.message })
     }
-};
+}
 
 
 module.exports = {
