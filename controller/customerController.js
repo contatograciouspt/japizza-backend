@@ -464,8 +464,8 @@ const updateCustomer = async (req, res) => {
     const { name, email, address, phone, image } = req.body;
     console.log("updateCustomer: ", req.body);
 
-    // Find the customer by ID
-    const customer = await Customer.findById(req.params._id);
+    // Encontrar customer by Email
+    const customer = await Customer.findByOne({ email });
     if (!customer) {
       return res.status(404).send({
         message: "Cliente não encontrado!",

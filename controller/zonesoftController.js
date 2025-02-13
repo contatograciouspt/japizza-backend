@@ -103,24 +103,23 @@ const zoneSoftOrder = async (req, res) => {
         if (!matchedMenuProduct) {
             throw new Error(`Produto com zoneSoftId ${product.zoneSoftId} não encontrado no menu.`)
         }
-        console.log(`Produto correspondente encontrado no menu: ${matchedMenuProduct.name}`)
+        // console.log(`Produto correspondente encontrado no menu: ${matchedMenuProduct.name}`)
 
-        // Faz o replace diretamente no matchedMenuProduct.name (sem [0])
-        const productName = matchedMenuProduct?.name
-            ? matchedMenuProduct?.name.replace(/^\d+\s*/, "")
-            : ""
-        console.log(`Nome do produto encontrado no menu: ${productName}`)
+        // // Faz o replace diretamente no matchedMenuProduct.name (sem [0])
+        // const productName = matchedMenuProduct.name
+        //     ? matchedMenuProduct.name.replace(/^\d+\s*/, "")
+        //     : ""
+        // console.log(`Nome do produto encontrado no menu: ${productName}`)
 
         // Monta o item do pedido usando o nome ajustado
         const productItem = {
             quantity: orderItem.quantity || 1,
             price: Number(matchedMenuProduct.price), // Preço conforme salvo no menu (em centavos)
             discount: orderItem.prices ? (orderItem.prices.discount || 0) : 0,
-            name: productName, // Usa o nome ajustado
+            name: orderData.dynamicDescriptor,
             id: matchedMenuProduct.id || "", // Esse id é o que a ZoneSoft espera
             attributes: [] // Adicione atributos se necessário
         }
-
 
         // 9. Monta o objeto do pedido conforme a estrutura exigida pela ZoneSoft,
         // utilizando os dados da order.
