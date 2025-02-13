@@ -16,7 +16,7 @@ const verifyEmailAddress = async (req, res) => {
   const isAdded = await Customer.findOne({ email: req.body.email });
   if (isAdded) {
     return res.status(403).send({
-      message: "This Email already Added!",
+      message: "Este e-mail já foi adicionado!",
     });
   } else {
     const token = tokenForVerify(req.body);
@@ -34,7 +34,7 @@ const verifyEmailAddress = async (req, res) => {
       html: customerRegisterBody(option),
     };
 
-    const message = "Please check your email to verify your account!";
+    const message = "Por favor, verifique seu e-mail para verificar sua conta!";
     sendEmail(body, res, message);
   }
 };
@@ -79,7 +79,7 @@ const addAllCustomers = async (req, res) => {
     await Customer.deleteMany();
     await Customer.insertMany(req.body);
     res.send({
-      message: "Added all users successfully!",
+      message: "Todos os usuários foram adicionados com sucesso!",
     });
   } catch (err) {
     res.status(500).send({
@@ -110,7 +110,7 @@ const loginCustomer = async (req, res) => {
       });
     } else {
       res.status(401).send({
-        message: "Invalid user or password!",
+        message: "Usuário ou senha inválidos!",
       });
     }
   } catch (err) {
@@ -124,7 +124,7 @@ const forgetPassword = async (req, res) => {
   const isAdded = await Customer.findOne({ email: req.body.verifyEmail });
   if (!isAdded) {
     return res.status(404).send({
-      message: "User Not found with this email!",
+      message: "Usuário não encontrado com este e-mail!",
     });
   } else {
     const token = tokenForVerify(isAdded);
@@ -141,7 +141,7 @@ const forgetPassword = async (req, res) => {
       html: forgetPasswordEmailBody(option),
     };
 
-    const message = "Please check your email to reset password!";
+    const message = "Por favor, verifique seu e-mail para redefinir a senha!";
     sendEmail(body, res, message);
   }
 };
@@ -161,7 +161,7 @@ const resetPassword = async (req, res) => {
         customer.password = bcrypt.hashSync(req.body.newPassword);
         customer.save();
         res.send({
-          message: "Your password change successful, you can login now!",
+          message: "Sua senha foi alterada com sucesso, você pode fazer login agora!",
         });
       }
     });
@@ -175,7 +175,7 @@ const changePassword = async (req, res) => {
     if (!customer.password) {
       return res.status(403).send({
         message:
-          "For change password,You need to sign up with email & password!",
+          "Para alterar a senha, você precisa se inscrever com e-mail e senha!",
       });
     } else if (
       customer &&
@@ -184,11 +184,11 @@ const changePassword = async (req, res) => {
       customer.password = bcrypt.hashSync(req.body.newPassword);
       await customer.save();
       res.send({
-        message: "Your password change successfully!",
+        message: "Sua senha foi alterada com sucesso!",
       });
     } else {
       res.status(401).send({
-        message: "Invalid email or current password!",
+        message: "Senha ou email incorretos!",
       });
     }
   } catch (err) {
@@ -368,7 +368,7 @@ const addShippingAddress = async (req, res) => {
 
     if (result.nModified > 0 || result.upserted) {
       return res.send({
-        message: "Shipping address added or updated successfully.",
+        message: "Endereço de entrega adicionado com sucesso.",
       });
     } else {
       return res.status(404).send({ message: "Customer not found." });
@@ -450,7 +450,7 @@ const deleteShippingAddress = async (req, res) => {
       }
     );
 
-    res.send({ message: "Shipping Address Deleted Successfully!" });
+    res.send({ message: "Endereço de entrega removido com sucesso!" });
   } catch (err) {
     res.status(500).send({
       message: err.message,
@@ -462,12 +462,13 @@ const updateCustomer = async (req, res) => {
   try {
     // Validate the input
     const { name, email, address, phone, image } = req.body;
+    console.log("updateCustomer: ", req.body);
 
     // Find the customer by ID
-    const customer = await Customer.findById(req.params.id);
+    const customer = await Customer.findById(req.params._id);
     if (!customer) {
       return res.status(404).send({
-        message: "Customer not found!",
+        message: "Cliente não encontrado!",
       });
     }
 
@@ -478,7 +479,7 @@ const updateCustomer = async (req, res) => {
       existingCustomer._id.toString() !== customer._id.toString()
     ) {
       return res.status(400).send({
-        message: "Email already exists.",
+        message: "Este email já existe.",
       });
     }
 
@@ -504,7 +505,7 @@ const updateCustomer = async (req, res) => {
       address: updatedUser.address,
       phone: updatedUser.phone,
       image: updatedUser.image,
-      message: "Customer updated successfully!",
+      message: "Dados atualizados com sucesso!",
     });
   } catch (err) {
     res.status(500).send({
@@ -521,7 +522,7 @@ const deleteCustomer = (req, res) => {
       });
     } else {
       res.status(200).send({
-        message: "User Deleted Successfully!",
+        message: "Usuário deletado com sucesso!",
       });
     }
   });
