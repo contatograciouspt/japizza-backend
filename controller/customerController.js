@@ -353,11 +353,12 @@ const updateOrderCodeCustomer = async (req, res) => {
 const addShippingAddress = async (req, res) => {
   try {
     const customerId = req.params.id;
+    const customerEmail = req.params.email;
     const newShippingAddress = req.body;
 
     // Find the customer by ID and update the shippingAddress field
     const result = await Customer.updateOne(
-      { _id: customerId },
+      { email: customerEmail },
       {
         $set: {
           shippingAddress: newShippingAddress,
@@ -371,7 +372,7 @@ const addShippingAddress = async (req, res) => {
         message: "Endereço de entrega adicionado com sucesso.",
       });
     } else {
-      return res.status(404).send({ message: "Customer not found." });
+      return res.status(404).send({ message: "Cadastro não encontrado." });
     }
   } catch (err) {
     res.status(500).send({
@@ -462,10 +463,9 @@ const updateCustomer = async (req, res) => {
   try {
     // Validate the input
     const { name, email, address, phone, image } = req.body;
-    console.log("updateCustomer: ", req.body);
 
-    // Encontrar customer by Email
-    const customer = await Customer.findByOne({ email });
+    // Find the customer by ID
+    const customer = await Customer.findById(req.params.id);
     if (!customer) {
       return res.status(404).send({
         message: "Cliente não encontrado!",

@@ -78,7 +78,7 @@ router.get("/email", getCustomerByEmail);
 router.put("/order-code", updateOrderCodeCustomer);
 
 //update a user
-router.put("/:id", updateCustomer);
+router.put("/:email", updateCustomer);
 
 //delete a user
 router.delete("/:id", deleteCustomer);
