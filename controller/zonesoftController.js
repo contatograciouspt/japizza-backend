@@ -106,12 +106,16 @@ const zoneSoftOrder = async (req, res) => {
         }
         console.log(`Produto correspondente encontrado no menu: ${matchedMenuProduct?.name}`)
 
+        // instanciar uma variavel para associar ao nome do produto encontrado no menu
+        const productName = matchedMenuProduct[0]?.name || ""
+        console.log(`Nome do produto encontrado no menu: ${productName}`)
+
         // 8. Monta o item do pedido usando os dados obtidos
         const productItem = {
             quantity: orderItem.quantity || 1,
             price: Number(matchedMenuProduct.price), // Preço conforme salvo no menu (em centavos)
             discount: orderItem.prices ? (orderItem.prices.discount || 0) : 0,
-            name: matchedMenuProduct?.name || "",
+            name: productName,
             id: matchedMenuProduct.id || "",
             attributes: [] // Adicione atributos se necessário
         }
