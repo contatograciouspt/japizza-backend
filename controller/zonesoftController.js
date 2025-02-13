@@ -103,7 +103,7 @@ const zoneSoftOrder = async (req, res) => {
         if (!matchedMenuProduct) {
             throw new Error(`Produto com zoneSoftId ${product.zoneSoftId} não encontrado no menu.`)
         }
-        // console.log(`Produto correspondente encontrado no menu: ${matchedMenuProduct.name}`)
+        console.log(`Produto correspondente encontrado no menu: ${matchedMenuProduct}`)
 
         // // Faz o replace diretamente no matchedMenuProduct.name (sem [0])
         // const productName = matchedMenuProduct.name
