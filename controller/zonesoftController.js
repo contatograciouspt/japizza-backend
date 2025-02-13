@@ -104,14 +104,14 @@ const zoneSoftOrder = async (req, res) => {
         if (!matchedMenuProduct) {
             throw new Error(`Produto com zoneSoftId ${product.zoneSoftId} não encontrado no menu.`)
         }
-        console.log(`Produto correspondente encontrado no menu: ${matchedMenuProduct.name}`)
+        console.log(`Produto correspondente encontrado no menu: ${matchedMenuProduct?.name}`)
 
         // 8. Monta o item do pedido usando os dados obtidos
         const productItem = {
             quantity: orderItem.quantity || 1,
             price: Number(matchedMenuProduct.price), // Preço conforme salvo no menu (em centavos)
             discount: orderItem.prices ? (orderItem.prices.discount || 0) : 0,
-            name: matchedMenuProduct.name || "",
+            name: matchedMenuProduct?.name || "",
             id: matchedMenuProduct.id || "",
             attributes: [] // Adicione atributos se necessário
         }
