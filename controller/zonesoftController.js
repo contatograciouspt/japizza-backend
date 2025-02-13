@@ -264,7 +264,8 @@ const zoneSoftLogin = async (req, res) => {
 
 const zoneSoftPos = async (req, res) => {
     try {
-        console.log("Dados de POS recebidos:", req.body)
+        const encomenda = req.body
+        console.log("Dados de POS recebidos:", encomenda)
         // Aqui você pode adicionar lógica adicional se necessário.
         return res.status(204).end()
     } catch (error) {

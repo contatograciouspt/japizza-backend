@@ -17,7 +17,6 @@ router.post("/menu", zoneSoftMenu);
 // Rota para atualizar o status do pedido
 router.post("/order/status", zoneSoftOrderStatus);
 
-
 // Rota para o endpoint de POS (confirmação de recebimento/status do POS)
 router.post("/pos", zoneSoftPos);
 
