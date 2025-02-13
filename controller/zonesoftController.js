@@ -46,23 +46,17 @@ const zoneSoftMenu = async (req, res) => {
 
 const zoneSoftOrder = async (req, res) => {
     try {
-        // Permite que a função seja chamada passando diretamente uma string como orderCode,
-        // ou um objeto de requisição com req.params.orderCode.
-        let orderCode
-        if (req && req.params && req.params.orderCode) {
-            orderCode = req.params.orderCode
-        } else if (typeof req === "string") {
-            orderCode = req
-        } else {
-            throw new Error("orderCode não fornecido.")
-        }
+        // 1. Valida o parâmetro orderCode
+        const { orderCode } = req.params
         console.log("orderCode recebido em zoneSoftOrder:", orderCode)
+        if (!orderCode) {
+            return res.status(400).json({ error: "orderCode não fornecido." })
+        }
 
         // 2. Busca a order com o orderCode e status "Pago"
         const order = await Order.findOne({ orderCode: orderCode, status: "Pago" })
         if (!order) {
-            return res ? res.status(404).json({ error: "Order não encontrado ou não foi pago." })
-                : Promise.reject(new Error("Order não encontrado ou não foi pago."))
+            return res.status(404).json({ error: "Order não encontrado ou não foi pago." })
         }
 
         // 3. Converte a order para objeto simples (caso necessário)
@@ -98,10 +92,11 @@ const zoneSoftOrder = async (req, res) => {
         }
         console.log("Menu encontrado, continuando...")
 
-        // 7. Procura no array "products" do menu um objeto cujo campo "id" seja igual ao product.zoneSoftId
+        // 7. Procura no array "products" do menu um objeto cujo campo "id" seja igual ao product.zoneSoftId,
+        // convertendo ambos para string para evitar problemas de tipo.
         let matchedMenuProduct = null
         for (const prod of menuDoc.products) {
-            if (typeof prod === "object" && prod.id === product.zoneSoftId) {
+            if (typeof prod === "object" && String(prod.id) === String(product.zoneSoftId)) {
                 matchedMenuProduct = prod
                 break
             }
@@ -116,12 +111,13 @@ const zoneSoftOrder = async (req, res) => {
             quantity: orderItem.quantity || 1,
             price: Number(matchedMenuProduct.price), // Preço conforme salvo no menu (em centavos)
             discount: orderItem.prices ? (orderItem.prices.discount || 0) : 0,
-            name: matchedMenuProduct.name,
-            id: matchedMenuProduct.id, // Este é o id que a ZoneSoft espera
+            name: matchedMenuProduct.name || "",
+            id: matchedMenuProduct.id || "",
             attributes: [] // Adicione atributos se necessário
         }
 
-        // 9. Monta o objeto do pedido conforme a estrutura exigida pela ZoneSoft
+        // 9. Monta o objeto do pedido conforme a estrutura exigida pela ZoneSoft,
+        //    utilizando os dados da order.
         const zonesoftOrderData = {
             order_id: order.orderCode.toString(),
             store_id: clientId,
@@ -166,6 +162,8 @@ const zoneSoftOrder = async (req, res) => {
             }
         }
 
+        console.log("Pedido pronto para ZoneSoft:", zonesoftOrderData)
+
         // 10. Converte o objeto do pedido para JSON e gera a assinatura HMAC
         const body = JSON.stringify(zonesoftOrderData)
         const signature = generateHmacSignature(body, secretKey)
@@ -185,13 +183,11 @@ const zoneSoftOrder = async (req, res) => {
         return res ? res.status(200).json(response.data) : response.data
     } catch (error) {
         console.error("Erro ao enviar o pedido (nova versão):", error.response ? error.response.data : error.message)
-        return res
+        return res && res.status
             ? res.status(500).json({ error: "Erro ao enviar o pedido (nova versão)", details: error.message })
             : Promise.reject(error)
     }
 }
-
-
 
 
 /**
