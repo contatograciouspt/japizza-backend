@@ -45,9 +45,8 @@ const zoneSoftMenu = async (req, res) => {
 
 const zoneSoftOrder = async (req, res) => {
     try {
-        // 1. Valida o parâmetro orderCode
-        const { orderCode } = req.params
-
+        // 1. Valida o parâmetro orderCode (passado via req.body para facilitar testes com POSTMAN)
+        const { orderCode } = req.body
         console.log("orderCode recebido em zoneSoftOrder:", orderCode)
         if (!orderCode) {
             return res.status(400).json({ error: "orderCode não fornecido." })
@@ -59,7 +58,7 @@ const zoneSoftOrder = async (req, res) => {
             return res.status(404).json({ error: "Order não encontrado ou não foi pago." })
         }
 
-        // 3. Converte a order para objeto simples (caso necessário)
+        // 3. Converte a order para objeto simples
         const orderData = JSON.parse(JSON.stringify(order))
 
         // 4. Extrai o item do pedido do primeiro grupo de itens (ajuste se houver múltiplos)
@@ -103,81 +102,77 @@ const zoneSoftOrder = async (req, res) => {
         if (!matchedMenuProduct) {
             throw new Error(`Produto com zoneSoftId ${product.zoneSoftId} não encontrado no menu.`)
         }
-        console.log(`Produto correspondente encontrado no menu: ${matchedMenuProduct}`)
+        console.log(`Produto correspondente encontrado no menu: ${matchedMenuProduct.name}`)
 
-        // // Faz o replace diretamente no matchedMenuProduct.name (sem [0])
-        // const productName = matchedMenuProduct.name
-        //     ? matchedMenuProduct.name.replace(/^\d+\s*/, "")
-        //     : ""
-        // console.log(`Nome do produto encontrado no menu: ${productName}`)
+        // 7.1 Realiza um replace no nome para remover dígitos e espaços iniciais (ex.: "01 MARGUERITA" -> "MARGUERITA")
+        const productName = matchedMenuProduct.name
+            ? matchedMenuProduct.name
+            : ""
+        console.log(`Nome do produto encontrado no menu: ${productName}`)
 
-        // Monta o item do pedido usando o nome ajustado
+        // 8. Monta o item do pedido usando os dados obtidos
         const productItem = {
             quantity: orderItem.quantity || 1,
             price: Number(matchedMenuProduct.price), // Preço conforme salvo no menu (em centavos)
             discount: orderItem.prices ? (orderItem.prices.discount || 0) : 0,
-            name: orderData.dynamicDescriptor,
-            id: matchedMenuProduct.id || "", // Esse id é o que a ZoneSoft espera
+            name: productName,
+            id: matchedMenuProduct.id || "",
             attributes: [] // Adicione atributos se necessário
         }
 
-        // 9. Monta o objeto do pedido conforme a estrutura exigida pela ZoneSoft,
-        // utilizando os dados da order.
+        // 9. Monta o objeto do pedido conforme o padrão exigido pela ZoneSoft.
+        // Convertendo valores monetários para centavos quando necessário.
         const zonesoftOrderData = {
-            order_id: order.orderCode.toString(),
-            store_id: clientId,
-            type_order: orderData.shippingOption === "shipping" ? "DELIVERY" : "PICKUP",
-            order_time: new Date(order.createdAt)
-                .toISOString()
-                .slice(0, 19)
-                .replace("T", " "),
-            estimated_pickup_time: new Date(
-                new Date(order.createdAt).getTime() + 30 * 60000
-            )
-                .toISOString()
-                .slice(0, 19)
-                .replace("T", " "),
-            currency: "EUR",
-            delivery_fee: Math.round((orderData.shippingCost || 0) * 100),
+            order_id: order.orderCode.toString(), // string
+            store_id: clientId, // string
+            type_order: orderData.shippingOption === "shipping" ? "DELIVERY" : "PICKUP", // "DELIVERY" ou "PICKUP"
+            order_time: new Date(order.createdAt).toISOString().slice(0, 19).replace("T", " "), // formato "YYYY-MM-DD HH:MM:SS"
+            estimated_pickup_time: new Date(new Date(order.createdAt).getTime() + 30 * 60000)
+                .toISOString().slice(0, 19).replace("T", " "),
+            currency: "EUR", // string
+            delivery_fee: Math.round(Number(orderData.shippingCost) * 100) || 0, // number, em centavos
+            courier: {
+                name: "",           // se não houver, vazio
+                phone_number: "",   // vazio
+                license_plate: ""   // vazio
+            },
             customer: {
-                name: orderData.cart.user_info.name || "",
-                phone: orderData.cart.user_info.contact || "",
-                nif: "Não informado",
-                email: orderData.cart.user_info.email || "",
+                name: orderData.cart[0]?.user_info?.name || "",
+                phone: orderData.cart[0]?.user_info?.contact || "",
+                nif: orderData.cart[0]?.user_info?.nif || "", // ou "Não informado"
+                email: orderData.cart[0]?.user_info?.email || ""
             },
-            products: [productItem],
+            products: [productItem], // array de produtos já montado
             obs: orderData.customerTrns ? orderData.customerTrns.join(" ") : "",
-            orderIsAlreadyPaid: orderData.orderIsAlreadyPaid === true,
-            payment_type: orderData.payment_type || 1,
+            orderIsAlreadyPaid: true, // boolean
+            payment_type: orderData.payment_type || 1, // number (1,2,...)
             delivery_address: {
-                label: orderData.customer.address,
-                latitude: orderData.merchantTrns,
-                longitude: orderData.merchantTrns
+                label: orderData.cart[0]?.user_info?.address || "",
+                latitude: orderData.merchantTrns || "", // se disponível
+                longitude: orderData.merchantTrns || "" // se disponível
             },
-            is_picked_up_by_customer: orderData.shippingOption !== "shipping",
-            discounted_products_total: 0,
-            total_customer_to_pay: Math.round(orderData.total),
+            is_picked_up_by_customer: orderData.shippingOption !== "shipping", // boolean
+            discounted_products_total: 0, // number
+            total_customer_to_pay: Math.round(Number(orderData.total) * 100) || 0, // number em centavos
             payment_charges: {
-                total: Math.round(orderData.amount),
-                sub_total: Math.round((orderData.subTotal || 0) * 100),
-                tax: 0,
-                total_fee: 0,
-                total_fee_tax: 0,
-                bag_fee: 0,
-                delivery_fee: Math.round((orderData.shippingCost || 0) * 100),
-                delivery_fee_tax: 0,
-                small_order_fee: 0,
-                small_order_fee_tax: 0,
-                pick_and_pack_fee: 0,
-                pick_and_pack_fee_tax: 0,
-                tip: 0
+                total: Number(orderData.amount) || 0,           // number, em centavos
+                sub_total: Math.round(Number(orderData.subTotal) * 100) || 0, // number
+                tax: 0,                                         // number
+                total_fee: 0,                                   // number
+                total_fee_tax: 0,                               // number
+                bag_fee: 0,                                     // number
+                delivery_fee: Math.round(Number(orderData.shippingCost) * 100) || 0, // number
+                delivery_fee_tax: 0,                            // number
+                small_order_fee: 0,                             // number
+                small_order_fee_tax: 0,                         // number
+                pick_and_pack_fee: 0,                           // number
+                pick_and_pack_fee_tax: 0,                       // number
+                tip: 0                                          // number
             }
-        }
+        };
 
-        console.log("Pedido pronto para ZoneSoft: ", zonesoftOrderData)
+        console.log("Pedido pronto para ZoneSoft:", zonesoftOrderData)
 
-        // const postmanData = req.body
-        // console.log("Dados Postman: ", postmanData)
         // 10. Converte o objeto do pedido para JSON e gera a assinatura HMAC
         const body = JSON.stringify(zonesoftOrderData)
         const signature = generateHmacSignature(body, secretKey)
@@ -197,14 +192,11 @@ const zoneSoftOrder = async (req, res) => {
         return res ? res.status(200).json(response.data) : response.data
     } catch (error) {
         console.error(
-            "Erro ao enviar o pedido (nova versão):",
+            "Erro ao enviar o pedido a zoneSoft:",
             error.response ? error.response.data : error.message
         )
         return res && res.status
-            ? res.status(500).json({
-                error: "Erro ao enviar o pedido (nova versão)",
-                details: error.message
-            })
+            ? res.status(500).json({ error: "Erro ao enviar o pedido para ZoneSoft", details: error.message })
             : Promise.reject(error)
     }
 }
@@ -278,7 +270,6 @@ const zoneSoftPos = async (req, res) => {
         return res.status(500).json({ error: "Erro ao processar status do POS", details: error.message })
     }
 }
-
 
 module.exports = {
     zoneSoftLogin,
