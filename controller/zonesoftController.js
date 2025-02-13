@@ -93,7 +93,7 @@ const zoneSoftOrder = async (req, res) => {
         console.log("Menu encontrado, continuando...")
 
         // 7. Procura no array "products" do menu um objeto cujo campo "id" seja igual ao product.zoneSoftId
-        const matchedMenuProduct = null
+        let matchedMenuProduct = null
         for (const prod of menuDoc.products) {
             if (typeof prod === "object" && String(prod.id) === String(product.zoneSoftId)) {
                 matchedMenuProduct = prod
