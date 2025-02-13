@@ -190,6 +190,7 @@ const zoneSoftOrder = async (req, res) => {
 }
 
 
+
 /**
  * Endpoint de login que gera um token JWT e, opcionalmente, dispara a sincronização do menu.
  */
