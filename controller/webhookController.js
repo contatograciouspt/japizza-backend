@@ -92,7 +92,6 @@ const webhookConnection = async (req, res) => {
 
 const webhookPaymentCreated = async (req, res) => {
     try {
-        console.log("Webhook de Pagamento Criado recebido:", req.params)
         const data = req.body
         console.log("Webhook de Pagamento Criado recebido:", data)
 
