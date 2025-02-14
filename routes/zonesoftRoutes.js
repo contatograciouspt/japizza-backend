@@ -4,7 +4,6 @@ const {
     zoneSoftLogin,
     zoneSoftMenu,
     zoneSoftOrderStatus,
-    zoneSoftOrder,
     zoneSoftPos
 } = require("../controller/zonesoftController");
 
@@ -17,7 +16,10 @@ router.post("/menu", zoneSoftMenu);
 // Rota para atualizar o status do pedido
 router.post("/order/status", zoneSoftOrderStatus);
 
-// Rota para o endpoint de POS (confirmação de recebimento/status do POS)
-router.post("/pos", zoneSoftPos);
+// Para ligar o POS:
+router.delete("/pos/status/closing", zoneSoftPos);
+
+// Para desligar o POS:
+router.put("/pos/status/closing", zoneSoftPos);
 
 module.exports = router;

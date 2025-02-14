@@ -46,7 +46,7 @@ const zoneSoftMenu = async (req, res) => {
 const zoneSoftOrder = async (req, res) => {
     try {
         // const { orderCode } = req.body
-        
+
         // 1. Valida o parâmetro orderCode (passado via req.body para facilitar testes com POSTMAN)
         const { orderCode } = req.params
         console.log("orderCode recebido em zoneSoftOrder:", orderCode)
@@ -171,7 +171,7 @@ const zoneSoftOrder = async (req, res) => {
                 pick_and_pack_fee_tax: 0,                       // number
                 tip: 0                                          // number
             }
-        };
+        }
 
         console.log("Pedido pronto para ZoneSoft:", zonesoftOrderData)
 
@@ -200,6 +200,30 @@ const zoneSoftOrder = async (req, res) => {
         return res && res.status
             ? res.status(500).json({ error: "Erro ao enviar o pedido para ZoneSoft", details: error.message })
             : Promise.reject(error)
+    }
+}
+
+/**
+ * Endpoint de login que gera um token JWT e, opcionalmente, dispara a sincronização do menu.
+ */
+const zoneSoftLogin = async (req, res) => {
+    try {
+        const data = req.body
+        if (data.app_store_username === appKey && data.app_store_secret === secretKey) {
+            const payload = {
+                app: appName,
+                clientId: clientId,
+                timestamp: Date.now()
+            }
+            const token = jwt.sign(payload, secretKey, { expiresIn: "1h" })
+            console.log("Token gerado com sucesso:", token)
+            return res.status(200).json({ access_token: token, expires_in: 36000 })
+        } else {
+            return res.status(401).json({ error: "Credenciais inválidas." })
+        }
+    } catch (error) {
+        console.error("Erro ao fazer login:", error.message)
+        res.status(500).json({ error: "Erro ao fazer login", details: error.message })
     }
 }
 
@@ -238,37 +262,20 @@ const zoneSoftOrderStatus = async (req, res) => {
     }
 }
 
-/**
- * Endpoint de login que gera um token JWT e, opcionalmente, dispara a sincronização do menu.
- */
-const zoneSoftLogin = async (req, res) => {
-    try {
-        const data = req.body
-        if (data.app_store_username === appKey && data.app_store_secret === secretKey) {
-            const payload = {
-                app: appName,
-                clientId: clientId,
-                timestamp: Date.now()
-            }
-            const token = jwt.sign(payload, secretKey, { expiresIn: "1h" })
-            console.log("Token gerado com sucesso:", token)
-            return res.status(200).json({ access_token: token, expires_in: 36000 })
-        } else {
-            return res.status(401).json({ error: "Credenciais inválidas." })
-        }
-    } catch (error) {
-        console.error("Erro ao fazer login:", error.message)
-        res.status(500).json({ error: "Erro ao fazer login", details: error.message })
-    }
-}
-
 const zoneSoftPos = async (req, res) => {
     try {
-        const encomenda = req.body
-        const { postData } = req.params
-        console.log("Dados de POS recebidos:", postData)
-        // Aqui você pode adicionar lógica adicional se necessário.
+        if (req.method === 'DELETE') {
+            // Lógica para tratar a requisição DELETE (ligar o POS) - possivelmente enviando um ping para o POS.
+            // Coloque aqui o código para atualizar o status do POS para online. 
+            console.log("POS Ligado")
+        } else if (req.method === 'PUT') {
+            // Lógica para tratar a requisição PUT (desligar o POS) - possivelmente uma chamada para desligar comunicação.
+            // Coloque aqui o código para atualizar o status do POS para offline
+            console.log("POS Desligado")
+        }
+
         return res.status(204).end()
+
     } catch (error) {
         console.error("Erro em zoneSoftPos:", error.message)
         return res.status(500).json({ error: "Erro ao processar status do POS", details: error.message })
