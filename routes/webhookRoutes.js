@@ -6,6 +6,6 @@ const { webhookEvents, webhookConnection } = require("../controller/webhookContr
 router.get("/events", webhookConnection)
 
 // Rota para receber notificações de eventos
-router.post("/events/send", webhookEvents)
+router.post("/events", webhookEvents)
 
 module.exports = router
