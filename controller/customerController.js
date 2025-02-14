@@ -16,7 +16,7 @@ const verifyEmailAddress = async (req, res) => {
   const isAdded = await Customer.findOne({ email: req.body.email });
   if (isAdded) {
     return res.status(403).send({
-      message: "Este e-mail já foi adicionado!",
+      message: "This Email already Added!",
     });
   } else {
     const token = tokenForVerify(req.body);
@@ -34,7 +34,7 @@ const verifyEmailAddress = async (req, res) => {
       html: customerRegisterBody(option),
     };
 
-    const message = "Por favor, verifique seu e-mail para verificar sua conta!";
+    const message = "Please check your email to verify your account!";
     sendEmail(body, res, message);
   }
 };
@@ -79,7 +79,7 @@ const addAllCustomers = async (req, res) => {
     await Customer.deleteMany();
     await Customer.insertMany(req.body);
     res.send({
-      message: "Todos os usuários foram adicionados com sucesso!",
+      message: "Added all users successfully!",
     });
   } catch (err) {
     res.status(500).send({
@@ -110,7 +110,7 @@ const loginCustomer = async (req, res) => {
       });
     } else {
       res.status(401).send({
-        message: "Usuário ou senha inválidos!",
+        message: "Invalid user or password!",
       });
     }
   } catch (err) {
@@ -124,7 +124,7 @@ const forgetPassword = async (req, res) => {
   const isAdded = await Customer.findOne({ email: req.body.verifyEmail });
   if (!isAdded) {
     return res.status(404).send({
-      message: "Usuário não encontrado com este e-mail!",
+      message: "User Not found with this email!",
     });
   } else {
     const token = tokenForVerify(isAdded);
@@ -141,7 +141,7 @@ const forgetPassword = async (req, res) => {
       html: forgetPasswordEmailBody(option),
     };
 
-    const message = "Por favor, verifique seu e-mail para redefinir a senha!";
+    const message = "Please check your email to reset password!";
     sendEmail(body, res, message);
   }
 };
@@ -161,7 +161,7 @@ const resetPassword = async (req, res) => {
         customer.password = bcrypt.hashSync(req.body.newPassword);
         customer.save();
         res.send({
-          message: "Sua senha foi alterada com sucesso, você pode fazer login agora!",
+          message: "Your password change successful, you can login now!",
         });
       }
     });
@@ -175,7 +175,7 @@ const changePassword = async (req, res) => {
     if (!customer.password) {
       return res.status(403).send({
         message:
-          "Para alterar a senha, você precisa se inscrever com e-mail e senha!",
+          "For change password,You need to sign up with email & password!",
       });
     } else if (
       customer &&
@@ -184,11 +184,11 @@ const changePassword = async (req, res) => {
       customer.password = bcrypt.hashSync(req.body.newPassword);
       await customer.save();
       res.send({
-        message: "Sua senha foi alterada com sucesso!",
+        message: "Your password change successfully!",
       });
     } else {
       res.status(401).send({
-        message: "Senha ou email incorretos!",
+        message: "Invalid email or current password!",
       });
     }
   } catch (err) {
@@ -352,8 +352,10 @@ const updateOrderCodeCustomer = async (req, res) => {
 // Shipping address create or update
 const addShippingAddress = async (req, res) => {
   try {
-    const customerId = req.params.email;
+    const customerId = req.params.id;
+    console.log("ID do usuário: ", customerId);
     const newShippingAddress = req.body;
+    console.log("novo endereço: ", newShippingAddress);
 
     // Find the customer by ID and update the shippingAddress field
     const result = await Customer.updateOne(
@@ -366,12 +368,14 @@ const addShippingAddress = async (req, res) => {
       { upsert: true } // Create a new document if no document matches the filter
     );
 
-    if (result.nModified > 0 || result.upserted) {
+    console.log("result", result);
+
+    if (result.modifiedCount > 0 || result.upsertedCount > 0) {
       return res.send({
-        message: "Endereço de entrega adicionado com sucesso.",
+        message: "Endereço de entrega atualizado com sucesso.",
       });
     } else {
-      return res.status(404).send({ message: "Customer not found." });
+      return res.status(404).send({ message: "Cadastro não encontrado." });
     }
   } catch (err) {
     res.status(500).send({
@@ -379,6 +383,32 @@ const addShippingAddress = async (req, res) => {
     });
   }
 };
+
+// const addShippingAddress = async (req, res) => {
+//   try {
+//     const customerId = req.params.id;
+//     console.log("ID do usuário: ", customerId);
+//     const newShippingAddress = req.body;
+//     console.log("novo endereço: ", newShippingAddress);
+  
+
+//     const result = await Customer.updateOne(
+//       { _id: customerId },
+//       { $set: { shippingAddress: newShippingAddress } },
+//       { upsert: true }
+//     );
+
+//     if (result.matchedCount === 0) {
+//       return res.status(404).send({ message: "Cadastro não encontrado." });
+//     } else if (result.modifiedCount === 0) {
+//       return res.send({ message: "Nenhuma alteração necessária." });
+//     } else {
+//       return res.send({ message: "Endereço atualizado com sucesso." });
+//     }
+//   } catch (err) {
+//     res.status(500).send({ message: err.message });
+//   }
+// };
 
 const getShippingAddress = async (req, res) => {
   try {
@@ -450,7 +480,7 @@ const deleteShippingAddress = async (req, res) => {
       }
     );
 
-    res.send({ message: "Endereço de entrega removido com sucesso!" });
+    res.send({ message: "Shipping Address Deleted Successfully!" });
   } catch (err) {
     res.status(500).send({
       message: err.message,
@@ -467,18 +497,18 @@ const updateCustomer = async (req, res) => {
     const customer = await Customer.findById(req.params.id);
     if (!customer) {
       return res.status(404).send({
-        message: "Cliente não encontrado!",
+        message: "Cadastro não encontrado (updateCustomer)!",
       });
     }
 
-    // Check if the email already exists and does not belong to the current customer
+    // Check if the Email já existe and does not belong to the current customer
     const existingCustomer = await Customer.findOne({ email });
     if (
       existingCustomer &&
       existingCustomer._id.toString() !== customer._id.toString()
     ) {
       return res.status(400).send({
-        message: "Este email já existe.",
+        message: "Email já existe.",
       });
     }
 
@@ -504,7 +534,7 @@ const updateCustomer = async (req, res) => {
       address: updatedUser.address,
       phone: updatedUser.phone,
       image: updatedUser.image,
-      message: "Dados atualizados com sucesso!",
+      message: "Customer updated successfully!",
     });
   } catch (err) {
     res.status(500).send({
@@ -521,7 +551,7 @@ const deleteCustomer = (req, res) => {
       });
     } else {
       res.status(200).send({
-        message: "Usuário deletado com sucesso!",
+        message: "User Deleted Successfully!",
       });
     }
   });
