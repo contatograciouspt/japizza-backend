@@ -105,6 +105,8 @@ const webhookEvents = async (req, res) => {
                 res.status(200).json({ message: "Webhook recebido com sucesso." })
                 break
         }
+
+
     } catch (error) { // Catch para erros *FORA* do IIFE, no fluxo principal do webhookEvents
         console.error("Erro ao processar webhook: ", error)
         // **Envie a resposta de erro *APENAS SE* a resposta 200 OK inicial *NÃO* tiver sido enviada (o que não deve acontecer neste código)**
