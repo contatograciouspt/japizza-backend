@@ -353,9 +353,7 @@ const updateOrderCodeCustomer = async (req, res) => {
 const addShippingAddress = async (req, res) => {
   try {
     const customerId = req.params.id;
-    console.log("ID do usuário: ", customerId);
     const newShippingAddress = req.body;
-    console.log("novo endereço: ", newShippingAddress);
 
     // Find the customer by ID and update the shippingAddress field
     const result = await Customer.updateOne(
@@ -368,9 +366,7 @@ const addShippingAddress = async (req, res) => {
       { upsert: true } // Create a new document if no document matches the filter
     );
 
-    console.log("result", result);
-
-    if (result.modifiedCount > 0 || result.upsertedCount > 0) {
+    if (result.modifiedCount === 1) {
       return res.send({
         message: "Endereço de entrega atualizado com sucesso.",
       });
