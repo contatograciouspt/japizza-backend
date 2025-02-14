@@ -304,7 +304,6 @@ module.exports = {
     zoneSoftLogin,
     zoneSoftMenu,
     zoneSoftOrder,
-    zoneSoftPos,
     zoneSoftOrderStatus,
     zoneSoftPosOnline,
     zoneSoftPosStatus
