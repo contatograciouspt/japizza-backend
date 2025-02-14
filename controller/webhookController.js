@@ -23,8 +23,9 @@ const webhookEvents = async (req, res) => {
                 console.log("O pagamento do cliente foi efetuado com sucesso: ", data)
                 res.status(200).json({ message: "Webhook de Pagamento Criado recebido com sucesso." })
 
-                    (async () => { // IIFE para processamento assíncrono
-                        console.log("Processando evento de Pagamento Criado...")
+                (async () => { // IIFE para processamento assíncrono
+                    console.log("Processando evento de Pagamento Criado...")
+                    try { // Try-catch DENTRO do IIFE para erros no processamento assíncrono
                         const newWebhook = new Webhook(data)
                         await newWebhook.save()
                         console.log("Evento de pagamento salvo com sucesso: ", newWebhook)
@@ -60,35 +61,43 @@ const webhookEvents = async (req, res) => {
                         } else {
                             console.log("Email do cliente não encontrado no webhook data.")
                         }
-                    })().catch(err => {
-                        console.error("Erro no processamento assíncrono do webhook de Pagamento Criado:", err)
-                    })
+                    } catch (asyncError) { // Catch para erros DENTRO do IIFE
+                        console.error("Erro no processamento assíncrono do webhook de Pagamento Criado:", asyncError)
+                        // **NÃO ENVIE RESPOSTA AQUI DENTRO DO IIFE**, pois a resposta principal (200 OK) já foi enviada
+                    }
+                })()
                 break
 
             case 1797: // Transaction Reversal Created
                 console.log("Um reembolso do cliente foi efetuado com sucesso: ", data)
                 res.status(200).json({ message: "Webhook de Reembolso Criado recebido com sucesso." })
 
-                    (async () => { // IIFE para processamento assíncrono
-                        console.log("Processando evento de Reembolso Criado...")
+                (async () => { // IIFE para processamento assíncrono
+                    console.log("Processando evento de Reembolso Criado...")
+                    try { // Try-catch DENTRO do IIFE
                         await Webhook.create(data)
                         // Lógica adicional para reembolso, se necessário
-                    })().catch(err => {
-                        console.error("Erro no processamento assíncrono do webhook de Reembolso Criado:", err)
-                    })
+                    } catch (asyncError) {
+                        console.error("Erro no processamento assíncrono do webhook de Reembolso Criado:", asyncError)
+                        // **NÃO ENVIE RESPOSTA AQUI DENTRO DO IIFE**
+                    }
+                })()
                 break
 
             case 1798: // Transaction Payment Failed
                 console.log("O pagamento de um cliente falhou: ", data)
                 res.status(200).json({ message: "Webhook de Pagamento Falhou recebido com sucesso." })
 
-                    (async () => { // IIFE para processamento assíncrono
-                        console.log("Processando evento de Pagamento Falhou...")
+                (async () => { // IIFE para processamento assíncrono
+                    console.log("Processando evento de Pagamento Falhou...")
+                    try { // Try-catch DENTRO do IIFE
                         await Webhook.create(data)
                         // Lógica adicional para falha de pagamento, se necessário
-                    })().catch(err => {
-                        console.error("Erro no processamento assíncrono do webhook de Pagamento Falhou:", err)
-                    })
+                    } catch (asyncError) {
+                        console.error("Erro no processamento assíncrono do webhook de Pagamento Falhou:", asyncError)
+                        // **NÃO ENVIE RESPOSTA AQUI DENTRO DO IIFE**
+                    }
+                })()
                 break
 
             default:
@@ -96,11 +105,14 @@ const webhookEvents = async (req, res) => {
                 res.status(200).json({ message: "Webhook recebido com sucesso." })
                 break
         }
-
-
-    } catch (error) {
+    } catch (error) { // Catch para erros *FORA* do IIFE, no fluxo principal do webhookEvents
         console.error("Erro ao processar webhook: ", error)
-        res.status(500).json({ message: "Erro ao processar webhook" })
+        // **Envie a resposta de erro *APENAS SE* a resposta 200 OK inicial *NÃO* tiver sido enviada (o que não deve acontecer neste código)**
+        if (!res.headersSent) { // Verificação de segurança para evitar ERR_HTTP_HEADERS_SENT
+            return res.status(500).json({ message: "Erro ao processar webhook" })
+        } else {
+            console.warn("Headers já enviados, não enviando resposta de erro 500 para evitar ERR_HTTP_HEADERS_SENT")
+        }
     }
 }
 
