@@ -1,7 +1,7 @@
 const Webhook = require("../models/Webhook")
-const verificationToken = process.env.VERIFICATION_TOKEN
 const Order = require("../models/Order")
 const { zoneSoftOrder } = require("./zonesoftController")
+const verificationToken = process.env.VERIFICATION_TOKEN
 
 const webhookConnection = async (req, res) => {
     try {
