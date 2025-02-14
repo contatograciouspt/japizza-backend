@@ -23,7 +23,7 @@ router.post("/order/status", zoneSoftOrderStatus)
 router.delete("/pos/status/", zoneSoftPosOnline)
 
 // Endpoint para obter o estado do POS (GET)
-router.get("/api/zonesoft/pos/status/", zoneSoftPosStatus)
+router.get("/pos/status/", zoneSoftPosStatus)
 
 // Endpoint para colocar o POS online (DELETE)
 router.delete("/pos/status/closing", zoneSoftPosOnline)
