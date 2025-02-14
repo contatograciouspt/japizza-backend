@@ -81,16 +81,23 @@ const Order = require("../models/Order")
 const { zoneSoftOrder } = require("./zonesoftController")
 
 const webhookConnection = async (req, res) => {
-    console.log("Recebendo verificação do webhook...", req.params)
-    res.status(200).header("Content-Type", "application/json").json({ Key: verificationToken })
+    try {
+        console.log("Recebendo verificação do webhook...", req.params)
+        res.status(200).header("Content-Type", "application/json").json({ Key: verificationToken })
+    } catch (error) {
+        console.error("Erro ao processar webhook: ", error)
+        res.status(500).json({ message: "Erro ao processar webhook" })
+    }
 }
 
 const webhookPaymentCreated = async (req, res) => {
     try {
+        // verificação do webhook com parametros
+        console.log("Verificando o webhook...", req.params)
+        res.status(200).header("Content-Type", "application/json").json({ message: "Webhook de Pagamento Criado recebido com sucesso.", Key: verificationToken })
+
         const data = req.body
         console.log("Webhook de Pagamento Criado recebido:", data)
-
-        res.status(200).json({ message: "Webhook de Pagamento Criado recebido com sucesso." })
 
             (async () => {
                 console.log("Processando evento de Pagamento Criado...")
@@ -139,9 +146,13 @@ const webhookPaymentCreated = async (req, res) => {
 
 const webhookPaymentReversed = async (req, res) => {
     try {
+
+        // verificação do webhook com parametros
+        console.log("Verificando o webhook...", req.params)
+        res.status(200).header("Content-Type", "application/json").json({ message: "Webhook de Reembolso Criado recebido com sucesso.", Key: verificationToken })
+
         const data = req.body
         console.log("Webhook de Reembolso Criado recebido:", data)
-        res.status(200).json({ message: "Webhook de Reembolso Criado recebido com sucesso." })
 
             (async () => {
                 console.log("Processando evento de Reembolso Criado...")
@@ -159,10 +170,11 @@ const webhookPaymentReversed = async (req, res) => {
 
 const webhookPaymentFailed = async (req, res) => {
     try {
+        console.log("Verificando o webhook...", req.params)
+        res.status(200).header("Content-Type", "application/json").json({ message: "Webhook de Pagamento Falhou recebido com sucesso.", Key: verificationToken })
+        
         const data = req.body
         console.log("Webhook de Pagamento Falhou recebido:", data)
-        res.status(200).json({ message: "Webhook de Pagamento Falhou recebido com sucesso." })
-
             (async () => {
                 console.log("Processando evento de Pagamento Falhou...")
                 await Webhook.create(data)
