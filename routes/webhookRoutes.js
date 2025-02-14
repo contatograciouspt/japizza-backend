@@ -1,19 +1,11 @@
-// webhookRoutes.js
-const express = require("express");
-const router = express.Router();
-const {
-    webhookPaymentCreated,
-    webhookPaymentReversed,
-    webhookPaymentFailed,
-    webhookConnection
-} = require("../controller/webhookController");
+const express = require("express")
+const router = express.Router()
+const { webhookEvents, webhookConnection } = require("../controller/webhookController")
 
 // Rota para verificação do webhook
 router.get("/events", webhookConnection)
 
-// Rotas para receber notificações de eventos específicos
-router.post("/events/payment-created", webhookPaymentCreated)
-router.post("/events/payment-reversed", webhookPaymentReversed)
-router.post("/events/payment-failed", webhookPaymentFailed)
+// Rota para receber notificações de eventos
+router.post("/events/send", webhookEvents)
 
-module.exports = router;
+module.exports = router
