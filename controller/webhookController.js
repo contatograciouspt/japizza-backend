@@ -223,7 +223,7 @@ const webhookUnknownEvent = async (data) => {
 const webhookEvents = async (req, res) => {
     try {
         const data = req.body
-        console.log("Webhook recebido:", JSON.stringify(data, null, 2))
+        console.log("Webhook recebido:", data)
 
         res.status(200).json({ message: "Webhook recebido com sucesso." }) // Resposta rápida
 
