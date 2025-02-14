@@ -21,100 +21,86 @@ const webhookEvents = async (req, res) => {
         switch (data.EventTypeId) {
             case 1796: // Transaction Payment Created
                 console.log("O pagamento do cliente foi efetuado com sucesso: ", data)
-                res.status(200).json({ message: "Webhook de Pagamento Criado recebido com sucesso." })
 
-                (async () => { // IIFE para processamento assíncrono
-                    console.log("Processando evento de Pagamento Criado...")
-                    try { // Try-catch DENTRO do IIFE para erros no processamento assíncrono
-                        const newWebhook = new Webhook(data)
-                        await newWebhook.save()
-                        console.log("Evento de pagamento salvo com sucesso: ", newWebhook)
+                    (async () => { // IIFE para processamento assíncrono
+                        console.log("Processando evento de Pagamento Criado...")
+                        try { // Try-catch DENTRO do IIFE para erros no processamento assíncrono
+                            const newWebhook = new Webhook(data)
+                            await newWebhook.save()
+                            console.log("Evento de pagamento salvo com sucesso: ", newWebhook)
 
-                        const customerOrderCode = data.EventData?.OrderCode
-                        console.log("OrderCode do cliente: ", customerOrderCode)
-                        if (customerOrderCode) {
-                            const updatedOrder = await Order.findOne({ orderCode: customerOrderCode })
+                            const customerOrderCode = data.EventData?.OrderCode
+                            console.log("OrderCode do cliente: ", customerOrderCode)
+                            if (customerOrderCode) {
+                                const updatedOrder = await Order.findOne({ orderCode: customerOrderCode })
 
-                            if (updatedOrder) {
-                                console.log(`Ordem encontrada com sucesso, atualizando status para Pago ${updatedOrder.orderCode}`)
-                                updatedOrder.status = 'Pago'
-                                await updatedOrder.save()
-                                console.log(`Status da ordem ${updatedOrder.orderCode} atualizado para Pago`)
+                                if (updatedOrder) {
+                                    console.log(`Ordem encontrada com sucesso, atualizando status para Pago ${updatedOrder.orderCode}`)
+                                    updatedOrder.status = 'Pago'
+                                    await updatedOrder.save()
+                                    console.log(`Status da ordem ${updatedOrder.orderCode} atualizado para Pago`)
 
-                                try {
-                                    console.log(`Iniciando envio para ZoneSoft: ${customerOrderCode}`)
-                                    await zoneSoftOrder({ params: { orderCode: customerOrderCode } }, {
-                                        status: (code) => ({
-                                            json: (obj) => {
-                                                console.log(`Simulated response with status ${code}`, obj)
-                                                return { success: true }
-                                            }
+                                    try {
+                                        console.log(`Iniciando envio para ZoneSoft: ${customerOrderCode}`)
+                                        await zoneSoftOrder({ params: { orderCode: customerOrderCode } }, {
+                                            status: (code) => ({
+                                                json: (obj) => {
+                                                    console.log(`Simulated response with status ${code}`, obj)
+                                                    return { success: true }
+                                                }
+                                            })
                                         })
-                                    })
 
-                                } catch (error) {
-                                    console.error("Erro ao enviar para ZoneSoft:", error)
+                                    } catch (error) {
+                                        console.error("Erro ao enviar para ZoneSoft:", error)
+                                    }
+                                } else {
+                                    console.log(`Nenhuma ordem encontrada com o OrderCode: ${customerOrderCode}`)
                                 }
                             } else {
-                                console.log(`Nenhuma ordem encontrada com o OrderCode: ${customerOrderCode}`)
+                                console.log("Email do cliente não encontrado no webhook data.")
                             }
-                        } else {
-                            console.log("Email do cliente não encontrado no webhook data.")
+                        } catch (asyncError) { // Catch para erros DENTRO do IIFE
+                            console.error("Erro no processamento assíncrono do webhook de Pagamento Criado:", asyncError)
+                            // **NÃO ENVIE RESPOSTA AQUI DENTRO DO IIFE**, pois a resposta principal (200 OK) já foi enviada
                         }
-                    } catch (asyncError) { // Catch para erros DENTRO do IIFE
-                        console.error("Erro no processamento assíncrono do webhook de Pagamento Criado:", asyncError)
-                        // **NÃO ENVIE RESPOSTA AQUI DENTRO DO IIFE**, pois a resposta principal (200 OK) já foi enviada
-                    }
-                })()
+                    })()
                 break
-
             case 1797: // Transaction Reversal Created
                 console.log("Um reembolso do cliente foi efetuado com sucesso: ", data)
-                res.status(200).json({ message: "Webhook de Reembolso Criado recebido com sucesso." })
 
-                (async () => { // IIFE para processamento assíncrono
-                    console.log("Processando evento de Reembolso Criado...")
-                    try { // Try-catch DENTRO do IIFE
-                        await Webhook.create(data)
-                        // Lógica adicional para reembolso, se necessário
-                    } catch (asyncError) {
-                        console.error("Erro no processamento assíncrono do webhook de Reembolso Criado:", asyncError)
-                        // **NÃO ENVIE RESPOSTA AQUI DENTRO DO IIFE**
-                    }
-                })()
+                    (async () => { // IIFE para processamento assíncrono
+                        console.log("Processando evento de Reembolso Criado...")
+                        try { // Try-catch DENTRO do IIFE
+                            await Webhook.create(data)
+                            // Lógica adicional para reembolso, se necessário
+                        } catch (asyncError) {
+                            console.error("Erro no processamento assíncrono do webhook de Reembolso Criado:", asyncError)
+                            // **NÃO ENVIE RESPOSTA AQUI DENTRO DO IIFE**
+                        }
+                    })()
                 break
-
             case 1798: // Transaction Payment Failed
                 console.log("O pagamento de um cliente falhou: ", data)
-                res.status(200).json({ message: "Webhook de Pagamento Falhou recebido com sucesso." })
 
-                (async () => { // IIFE para processamento assíncrono
-                    console.log("Processando evento de Pagamento Falhou...")
-                    try { // Try-catch DENTRO do IIFE
-                        await Webhook.create(data)
-                        // Lógica adicional para falha de pagamento, se necessário
-                    } catch (asyncError) {
-                        console.error("Erro no processamento assíncrono do webhook de Pagamento Falhou:", asyncError)
-                        // **NÃO ENVIE RESPOSTA AQUI DENTRO DO IIFE**
-                    }
-                })()
+                    (async () => { // IIFE para processamento assíncrono
+                        console.log("Processando evento de Pagamento Falhou...")
+                        try { // Try-catch DENTRO do IIFE
+                            await Webhook.create(data)
+                            // Lógica adicional para falha de pagamento, se necessário
+                        } catch (asyncError) {
+                            console.error("Erro no processamento assíncrono do webhook de Pagamento Falhou:", asyncError)
+                            // **NÃO ENVIE RESPOSTA AQUI DENTRO DO IIFE**
+                        }
+                    })()
                 break
-
             default:
                 console.log("Evento desconhecido: ", data)
-                res.status(200).json({ message: "Webhook recebido com sucesso." })
                 break
         }
-
-
     } catch (error) { // Catch para erros *FORA* do IIFE, no fluxo principal do webhookEvents
         console.error("Erro ao processar webhook: ", error)
-        // **Envie a resposta de erro *APENAS SE* a resposta 200 OK inicial *NÃO* tiver sido enviada (o que não deve acontecer neste código)**
-        if (!res.headersSent) { // Verificação de segurança para evitar ERR_HTTP_HEADERS_SENT
-            return res.status(500).json({ message: "Erro ao processar webhook" })
-        } else {
-            console.warn("Headers já enviados, não enviando resposta de erro 500 para evitar ERR_HTTP_HEADERS_SENT")
-        }
+        res.status(500).json({ message: "Erro ao processar webhook" })
     }
 }
 
