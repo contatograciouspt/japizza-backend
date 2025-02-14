@@ -82,13 +82,13 @@ const { zoneSoftOrder } = require("./zonesoftController")
 
 const webhookConnection = async (req, res) => {
     console.log("Recebendo verificação do webhook...", req.params)
-    res.status(200).json({ Key: verificationToken })
+    res.status(200).header("Content-Type", "application/json").json({ Key: verificationToken })
 }
 
 const webhookPaymentCreated = async (req, res) => {
     try {
         const data = req.body
-        console.log("Webhook de Pagamento Criado recebido:", JSON.stringify(data, null, 2))
+        console.log("Webhook de Pagamento Criado recebido:", data)
 
         res.status(200).json({ message: "Webhook de Pagamento Criado recebido com sucesso." })
 
@@ -140,7 +140,7 @@ const webhookPaymentCreated = async (req, res) => {
 const webhookPaymentReversed = async (req, res) => {
     try {
         const data = req.body
-        console.log("Webhook de Reembolso Criado recebido:", JSON.stringify(data, null, 2))
+        console.log("Webhook de Reembolso Criado recebido:", data)
         res.status(200).json({ message: "Webhook de Reembolso Criado recebido com sucesso." })
 
             (async () => {
@@ -160,7 +160,7 @@ const webhookPaymentReversed = async (req, res) => {
 const webhookPaymentFailed = async (req, res) => {
     try {
         const data = req.body
-        console.log("Webhook de Pagamento Falhou recebido:", JSON.stringify(data, null, 2))
+        console.log("Webhook de Pagamento Falhou recebido:", data)
         res.status(200).json({ message: "Webhook de Pagamento Falhou recebido com sucesso." })
 
             (async () => {
