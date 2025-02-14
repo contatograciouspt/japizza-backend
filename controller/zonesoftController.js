@@ -262,30 +262,50 @@ const zoneSoftOrderStatus = async (req, res) => {
     }
 }
 
-const zoneSoftPos = async (req, res) => {
+const zoneSoftPosOnline = async (req, res) => { // Função para LIGAR o POS (online) - DELETE /pos/status/closing
     try {
-        if (req.method === 'DELETE') {
-            // Lógica para tratar a requisição DELETE (ligar o POS) - possivelmente enviando um ping para o POS.
-            // Coloque aqui o código para atualizar o status do POS para online. 
-            console.log("POS Ligado")
-        } else if (req.method === 'PUT') {
-            // Lógica para tratar a requisição PUT (desligar o POS) - possivelmente uma chamada para desligar comunicação.
-            // Coloque aqui o código para atualizar o status do POS para offline
-            console.log("POS Desligado")
-        }
+        // Lógica para tratar a requisição DELETE (ligar o POS)
+        // *** IMPLEMENTAR A LÓGICA REAL PARA COLOCAR O POS ONLINE AQUI ***
+        console.log("POS Ligado (Online) - Endpoint DELETE /pos/status/closing");
 
-        return res.status(204).end()
-
+        return res.status(204).end(); // Retorna 204 No Content conforme documentação
     } catch (error) {
-        console.error("Erro em zoneSoftPos:", error.message)
-        return res.status(500).json({ error: "Erro ao processar status do POS", details: error.message })
+        console.error("Erro em zoneSoftPosOnline:", error.message);
+        return res.status(500).json({ error: "Erro ao processar status do POS (Online)", details: error.message });
     }
-}
+};
+
+
+const zoneSoftPosStatus = async (req, res) => { // Função para OBTER STATUS do POS - GET /pos/status
+    try {
+        // Lógica para obter o status do POS
+        // *** IMPLEMENTAR A LÓGICA REAL PARA OBTER O STATUS DO POS AQUI ***
+        console.log("Obter Status do POS - Endpoint GET /pos/status");
+
+        // *** FORMATAR A RESPOSTA CONFORME EXEMPLO DA DOCUMENTAÇÃO (STATUS 200) ***
+        const responseBody = {
+            body: {
+                header: {
+                    statusCode: 200,
+                    statusMessage: "OK",
+                    status: "HTTP/1.1 200 OK"
+                }
+            }
+        };
+
+        return res.status(200).json(responseBody); // Retorna 200 com o corpo formatado
+    } catch (error) {
+        console.error("Erro em zoneSoftPosStatus:", error.message);
+        return res.status(500).json({ error: "Erro ao obter status do POS", details: error.message });
+    }
+};
 
 module.exports = {
     zoneSoftLogin,
     zoneSoftMenu,
     zoneSoftOrder,
     zoneSoftPos,
-    zoneSoftOrderStatus
+    zoneSoftOrderStatus,
+    zoneSoftPosOnline,
+    zoneSoftPosStatus
 }
