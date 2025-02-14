@@ -262,27 +262,49 @@ const zoneSoftOrderStatus = async (req, res) => {
     }
 }
 
-const zoneSoftPosOnline = async (req, res) => { // Função para LIGAR o POS (online) - DELETE /pos/status/closing
+const zoneSoftPosOnline = async (req, res) => { // Função para LIGAR o POS (online) - DELETE /pos/status/
     try {
-        // Lógica para tratar a requisição DELETE (ligar o POS)
-        // *** IMPLEMENTAR A LÓGICA REAL PARA COLOCAR O POS ONLINE AQUI ***
-        console.log("POS Ligado (Online) - Endpoint DELETE /pos/status/closing");
+        console.log("Endpoint DELETE /pos/status/ chamado para Ligar POS (Online)")
+       
+        posStatus = "online"
+        console.log("Status do POS alterado para: Online")
 
-        return res.status(204).end(); // Retorna 204 No Content conforme documentação
+        try {
+            await axios.post("URL_DA_API_DO_SEU_POS/ligar") // Substitua pela URL e método corretos
+            console.log("Comando 'ligar' enviado para o POS com sucesso.")
+        } catch (posError) {
+            console.error("Erro ao enviar comando 'ligar' para o POS:", posError.message)
+        }
+
+        return res.status(204).end()
+
     } catch (error) {
-        console.error("Erro em zoneSoftPosOnline:", error.message);
-        return res.status(500).json({ error: "Erro ao processar status do POS (Online)", details: error.message });
+        console.error("Erro em zoneSoftPosOnline:", error.message)
+        return res.status(500).json({ error: "Erro ao processar status do POS (Online)", details: error.message })
     }
-};
-
+}
 
 const zoneSoftPosStatus = async (req, res) => { // Função para OBTER STATUS do POS - GET /pos/status
     try {
-        // Lógica para obter o status do POS
-        // *** IMPLEMENTAR A LÓGICA REAL PARA OBTER O STATUS DO POS AQUI ***
-        console.log("Obter Status do POS - Endpoint GET /pos/status");
+        console.log("Endpoint GET /pos/status/ chamado para Obter Status do POS")
 
-        // *** FORMATAR A RESPOSTA CONFORME EXEMPLO DA DOCUMENTAÇÃO (STATUS 200) ***
+        const isPosOnline = posStatus === "online"
+        const statusMessage = isPosOnline ? "Online" : "Offline" // Status para log
+        console.log("Status do POS:", statusMessage)
+
+        const actualPosStatus = "offline" // Assumir offline por padrão
+        try {
+            const posPingResponse = await axios.get("URL_DE_PING_DO_SEU_POS/ping", { timeout: 5000 }) // Substitua pela URL de ping do POS
+            if (posPingResponse.status === 200) {
+                actualPosStatus = "online"
+                console.log("POS respondeu ao ping, status: Online")
+            }
+        } catch (pingError) {
+            console.log("POS não respondeu ao ping ou erro ao verificar:", pingError.message)
+            actualPosStatus = "offline" // Mantém offline em caso de erro ou timeout
+        }
+
+        // Formatar a resposta JSON conforme documentação (StatusCode 200 SEMPRE)
         const responseBody = {
             body: {
                 header: {
@@ -291,14 +313,14 @@ const zoneSoftPosStatus = async (req, res) => { // Função para OBTER STATUS do
                     status: "HTTP/1.1 200 OK"
                 }
             }
-        };
+        }
 
-        return res.status(200).json(responseBody); // Retorna 200 com o corpo formatado
+        return res.status(200).json(responseBody) // Retorna 200 com o corpo formatado
     } catch (error) {
-        console.error("Erro em zoneSoftPosStatus:", error.message);
-        return res.status(500).json({ error: "Erro ao obter status do POS", details: error.message });
+        console.error("Erro em zoneSoftPosStatus:", error.message)
+        return res.status(500).json({ error: "Erro ao obter status do POS", details: error.message })
     }
-};
+}
 
 module.exports = {
     zoneSoftLogin,
