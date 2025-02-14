@@ -92,44 +92,44 @@ const webhookPaymentCreated = async (req, res) => {
 
         res.status(200).json({ message: "Webhook de Pagamento Criado recebido com sucesso." })
 
-        (async () => {
-            console.log("Processando evento de Pagamento Criado...")
-            await Webhook.create(data)
+            (async () => {
+                console.log("Processando evento de Pagamento Criado...")
+                await Webhook.create(data)
 
-            const customerOrderCode = data.EventData?.OrderCode
-            if (!customerOrderCode) {
-                console.log("Nenhum OrderCode encontrado no EventData para Pagamento Criado.")
-                return
-            }
+                const customerOrderCode = data.EventData?.OrderCode
+                if (!customerOrderCode) {
+                    console.log("Nenhum OrderCode encontrado no EventData para Pagamento Criado.")
+                    return
+                }
 
-            const updatedOrder = await Order.findOne({ orderCode: customerOrderCode })
-            if (!updatedOrder) {
-                console.log("Order não encontrada para o OrderCode:", customerOrderCode, " no evento de Pagamento Criado.")
-                return
-            }
+                const updatedOrder = await Order.findOne({ orderCode: customerOrderCode })
+                if (!updatedOrder) {
+                    console.log("Order não encontrada para o OrderCode:", customerOrderCode, " no evento de Pagamento Criado.")
+                    return
+                }
 
-            updatedOrder.status = "Pago"
-            await updatedOrder.save()
-            console.log("Status da ordem atualizado para Pago:", updatedOrder.orderCode, " após Pagamento Criado.")
+                updatedOrder.status = "Pago"
+                await updatedOrder.save()
+                console.log("Status da ordem atualizado para Pago:", updatedOrder.orderCode, " após Pagamento Criado.")
 
-            try {
-                console.log("Enviando pedido para ZoneSoft:", customerOrderCode, " após Pagamento Criado.")
-                await zoneSoftOrder(
-                    { params: { orderCode: customerOrderCode } },
-                    {
-                        status: (code) => ({
-                            json: (obj) => {
-                                console.log(`Resposta do zoneSoftOrder status ${code}`, obj, " após Pagamento Criado.")
-                            }
-                        })
-                    }
-                )
-            } catch (error) {
-                console.error("Erro ao enviar pedido para ZoneSoft após Pagamento Criado:", error)
-            }
-        })().catch(err => {
-            console.error("Erro no processamento assíncrono do webhook de Pagamento Criado:", err)
-        })
+                try {
+                    console.log("Enviando pedido para ZoneSoft:", customerOrderCode, " após Pagamento Criado.")
+                    await zoneSoftOrder(
+                        { params: { orderCode: customerOrderCode } },
+                        {
+                            status: (code) => ({
+                                json: (obj) => {
+                                    console.log(`Resposta do zoneSoftOrder status ${code}`, obj, " após Pagamento Criado.")
+                                }
+                            })
+                        }
+                    )
+                } catch (error) {
+                    console.error("Erro ao enviar pedido para ZoneSoft após Pagamento Criado:", error)
+                }
+            })().catch(err => {
+                console.error("Erro no processamento assíncrono do webhook de Pagamento Criado:", err)
+            })
 
     } catch (error) {
         console.error("Erro ao processar webhook de Pagamento Criado: ", error)
@@ -143,13 +143,13 @@ const webhookPaymentReversed = async (req, res) => {
         console.log("Webhook de Reembolso Criado recebido:", JSON.stringify(data, null, 2))
         res.status(200).json({ message: "Webhook de Reembolso Criado recebido com sucesso." })
 
-        (async () => {
-            console.log("Processando evento de Reembolso Criado...")
-            await Webhook.create(data)
-            // Lógica adicional para reembolso, se necessário
-        })().catch(err => {
-            console.error("Erro no processamento assíncrono do webhook de Reembolso Criado:", err)
-        })
+            (async () => {
+                console.log("Processando evento de Reembolso Criado...")
+                await Webhook.create(data)
+                // Lógica adicional para reembolso, se necessário
+            })().catch(err => {
+                console.error("Erro no processamento assíncrono do webhook de Reembolso Criado:", err)
+            })
 
     } catch (error) {
         console.error("Erro ao processar webhook de Reembolso Criado: ", error)
@@ -163,13 +163,13 @@ const webhookPaymentFailed = async (req, res) => {
         console.log("Webhook de Pagamento Falhou recebido:", JSON.stringify(data, null, 2))
         res.status(200).json({ message: "Webhook de Pagamento Falhou recebido com sucesso." })
 
-        (async () => {
-            console.log("Processando evento de Pagamento Falhou...")
-            await Webhook.create(data)
-            // Lógica adicional para falha de pagamento, se necessário
-        })().catch(err => {
-            console.error("Erro no processamento assíncrono do webhook de Pagamento Falhou:", err)
-        })
+            (async () => {
+                console.log("Processando evento de Pagamento Falhou...")
+                await Webhook.create(data)
+                // Lógica adicional para falha de pagamento, se necessário
+            })().catch(err => {
+                console.error("Erro no processamento assíncrono do webhook de Pagamento Falhou:", err)
+            })
 
     } catch (error) {
         console.error("Erro ao processar webhook de Pagamento Falhou: ", error)
@@ -178,4 +178,9 @@ const webhookPaymentFailed = async (req, res) => {
 }
 
 
-module.exports = { webhookPaymentCreated, webhookPaymentReversed, webhookPaymentFailed, webhookConnection }
+module.exports = {
+    webhookPaymentCreated,
+    webhookPaymentReversed,
+    webhookPaymentFailed,
+    webhookConnection
+}

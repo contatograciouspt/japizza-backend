@@ -1,7 +1,12 @@
 // webhookRoutes.js
 const express = require("express");
 const router = express.Router();
-const { webhookEvents, webhookConnection } = require("../controller/webhookController");
+const {
+    webhookPaymentCreated,
+    webhookPaymentReversed,
+    webhookPaymentFailed,
+    webhookConnection
+} = require("../controller/webhookController");
 
 // Rota para verificação do webhook
 router.get("/events", webhookConnection)
