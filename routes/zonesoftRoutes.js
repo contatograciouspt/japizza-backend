@@ -3,6 +3,8 @@ const router = express.Router();
 const {
     zoneSoftLogin,
     zoneSoftMenu,
+    zoneSoftOrder,
+    zoneSoftPosOffline,
     zoneSoftOrderStatus,
     zoneSoftPosOnline, // Renomeado para Online para clareza
     zoneSoftPosStatus // Mantido para Obter Status
@@ -20,8 +22,17 @@ router.post("/order/status", zoneSoftOrderStatus);
 // Para LIGAR o POS (online):  Endpoint ajustado para /pos/status/ e método DELETE
 router.delete("/pos/status/", zoneSoftPosOnline);
 
-// Para OBTER o status do POS: Mantido como GET /pos/status/
-router.get("/pos/status/", zoneSoftPosStatus);
+// Endpoint para obter o estado do POS (GET)
+router.get('/api/zonesoft/pos/status/', zoneSoftPosStatus);
+
+// Endpoint para colocar o POS online (DELETE)
+router.delete('/api/zonesoft/pos/status/closing', zoneSoftPosOnline);
+
+// Endpoint para colocar o POS offline (PUT)
+router.put('/api/zonesoft/pos/status/closing', zoneSoftPosOffline);
+
+// Endpoint para testar enviar pedido para zoneSoft via POSTMAN
+router.post("/test", zoneSoftOrder);
 
 
 module.exports = router;

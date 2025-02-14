@@ -46,6 +46,7 @@ const zoneSoftMenu = async (req, res) => {
 const zoneSoftOrder = async (req, res) => {
     try {
         // const { orderCode } = req.body
+        // console.log("orderCode via POSTMAN:", orderCode)
 
         // 1. Valida o parâmetro orderCode (passado via req.body para facilitar testes com POSTMAN)
         const { orderCode } = req.params
@@ -262,65 +263,62 @@ const zoneSoftOrderStatus = async (req, res) => {
     }
 }
 
-const zoneSoftPosOnline = async (req, res) => { // Função para LIGAR o POS (online) - DELETE /pos/status/
+const zoneSoftPosStatus = async (req, res) => {
     try {
-        console.log("Endpoint DELETE /pos/status/ chamado para Ligar POS (Online)")
-       
-        posStatus = "online"
-        console.log("Status do POS alterado para: Online")
-
-        try {
-            await axios.post("URL_DA_API_DO_SEU_POS/ligar") // Substitua pela URL e método corretos
-            console.log("Comando 'ligar' enviado para o POS com sucesso.")
-        } catch (posError) {
-            console.error("Erro ao enviar comando 'ligar' para o POS:", posError.message)
-        }
-
-        return res.status(204).end()
-
-    } catch (error) {
-        console.error("Erro em zoneSoftPosOnline:", error.message)
-        return res.status(500).json({ error: "Erro ao processar status do POS (Online)", details: error.message })
-    }
-}
-
-const zoneSoftPosStatus = async (req, res) => { // Função para OBTER STATUS do POS - GET /pos/status
-    try {
-        console.log("Endpoint GET /pos/status/ chamado para Obter Status do POS")
-
-        const isPosOnline = posStatus === "online"
-        const statusMessage = isPosOnline ? "Online" : "Offline" // Status para log
-        console.log("Status do POS:", statusMessage)
-
-        const actualPosStatus = "offline" // Assumir offline por padrão
-        try {
-            const posPingResponse = await axios.get("URL_DE_PING_DO_SEU_POS/ping", { timeout: 5000 }) // Substitua pela URL de ping do POS
-            if (posPingResponse.status === 200) {
-                actualPosStatus = "online"
-                console.log("POS respondeu ao ping, status: Online")
-            }
-        } catch (pingError) {
-            console.log("POS não respondeu ao ping ou erro ao verificar:", pingError.message)
-            actualPosStatus = "offline" // Mantém offline em caso de erro ou timeout
-        }
-
-        // Formatar a resposta JSON conforme documentação (StatusCode 200 SEMPRE)
+        console.log("GET /pos/status recebido:", req.params, req.body);
         const responseBody = {
-            body: {
-                header: {
-                    statusCode: 200,
-                    statusMessage: "OK",
-                    status: "HTTP/1.1 200 OK"
-                }
+            body: "",
+            header: {
+                statusCode: 200,
+                statusMessage: "OK",
+                status: "HTTP/1.1 200 OK"
             }
-        }
-
-        return res.status(200).json(responseBody) // Retorna 200 com o corpo formatado
+        };
+        return res.status(200).json(responseBody);
     } catch (error) {
-        console.error("Erro em zoneSoftPosStatus:", error.message)
-        return res.status(500).json({ error: "Erro ao obter status do POS", details: error.message })
+        console.error("Erro em zoneSoftPosStatus:", error.message);
+        return res.status(500).json({ error: "Erro ao obter status do POS", details: error.message });
+    }
+};
+
+// Coloca o POS online para receber encomendas (DELETE /pos/status/closing)
+const zoneSoftPosOnline = async (req, res) => {
+    try {
+        console.log("DELETE /pos/status/closing recebido:", req.params, req.body);
+        const responseBody = {
+            body: "",
+            header: {
+                statusCode: 204,
+                statusMessage: "No Content",
+                status: "HTTP/1.1 204 No Content"
+            }
+        };
+        return res.status(204).json(responseBody);
+    } catch (error) {
+        console.error("Erro em zoneSoftPosOnline:", error.message);
+        return res.status(500).json({ error: "Erro ao processar status do POS (Online)", details: error.message });
+    }
+};
+
+// Coloca o POS offline para não receber encomendas (PUT /pos/status/closing)
+const zoneSoftPosOffline = async (req, res) => {
+    try {
+        console.log("PUT /pos/status/closing recebido:", req.params, req.body);
+        const responseBody = {
+            body: "",
+            header: {
+                statusCode: 204,
+                statusMessage: "No Content",
+                status: "HTTP/1.1 204 No Content"
+            }
+        };
+        return res.status(204).json(responseBody);
+    } catch (error) {
+        console.error("Erro em zoneSoftPosOffline:", error.message);
+        return res.status(500).json({ error: "Erro ao processar status do POS (Offline)", details: error.message });
     }
 }
+
 
 module.exports = {
     zoneSoftLogin,
@@ -328,5 +326,6 @@ module.exports = {
     zoneSoftOrder,
     zoneSoftOrderStatus,
     zoneSoftPosOnline,
-    zoneSoftPosStatus
+    zoneSoftPosStatus,
+    zoneSoftPosOffline
 }
