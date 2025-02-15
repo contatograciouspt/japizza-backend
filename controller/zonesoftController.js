@@ -285,51 +285,51 @@ const zoneSoftPosStatus = (req, res) => {
 
         return res.status(200).json(responseBody);
     };
+}
 
-    // Coloca o POS online para receber encomendas (DELETE /pos/status/closing)
-    const zoneSoftPosOnline = (req, res) => {
-        console.log("DELETE /pos/status/closing: ", req.params, req.body);
-        // Verificar se o método é DELETE
-        if (req.method !== "DELETE") {
-            return res.status(405).json({ error: "Método não permitido" });
+// Coloca o POS online para receber encomendas (DELETE /pos/status/closing)
+const zoneSoftPosOnline = (req, res) => {
+    console.log("DELETE /pos/status/closing: ", req.params, req.body);
+    // Verificar se o método é DELETE
+    if (req.method !== "DELETE") {
+        return res.status(405).json({ error: "Método não permitido" });
+    }
+
+    return res.status(200).json({
+        body: "",
+        header: {
+            statusCode: 204,
+            statusMessage: "No Content",
+            status: "HTTP/1.1 204 No Content"
         }
-
-        return res.status(200).json({
-            body: "",
-            header: {
-                statusCode: 204,
-                statusMessage: "No Content",
-                status: "HTTP/1.1 204 No Content"
-            }
-        });
-        // console.log("DELETE /pos/status/closing");
-        // return res.sendStatus(204); // ou res.status(204).end()
-    };
+    });
+    // console.log("DELETE /pos/status/closing");
+    // return res.sendStatus(204); // ou res.status(204).end()
+};
 
 
-    // Coloca o POS offline para não receber encomendas (PUT /pos/status/closing)
-    const zoneSoftPosOffline = (req, res) => {
-        console.log("PUT /pos/status/closing");
-        return res.status(200).json({
-            body: "",
-            header: {
-                statusCode: 204,
-                statusMessage: "No Content",
-                status: "HTTP/1.1 204 No Content"
-            }
-        });
-        // console.log("DELETE /pos/status/closing");
-        // return res.sendStatus(204); // ou res.status(204).end()
-    }
+// Coloca o POS offline para não receber encomendas (PUT /pos/status/closing)
+const zoneSoftPosOffline = (req, res) => {
+    console.log("PUT /pos/status/closing");
+    return res.status(200).json({
+        body: "",
+        header: {
+            statusCode: 204,
+            statusMessage: "No Content",
+            status: "HTTP/1.1 204 No Content"
+        }
+    });
+    // console.log("DELETE /pos/status/closing");
+    // return res.sendStatus(204); // ou res.status(204).end()
+}
 
 
-    module.exports = {
-        zoneSoftLogin,
-        zoneSoftMenu,
-        zoneSoftOrder,
-        zoneSoftOrderStatus,
-        zoneSoftPosOnline,
-        zoneSoftPosStatus,
-        zoneSoftPosOffline
-    }
+module.exports = {
+    zoneSoftLogin,
+    zoneSoftMenu,
+    zoneSoftOrder,
+    zoneSoftOrderStatus,
+    zoneSoftPosOnline,
+    zoneSoftPosStatus,
+    zoneSoftPosOffline
 }
