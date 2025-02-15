@@ -72,11 +72,11 @@ const zoneSoftMenu = async (req, res) => {
 
 const zoneSoftOrder = async (req, res) => {
     try {
-        const { orderCode } = req.body
-        console.log("orderCode via POSTMAN:", orderCode)
+        // const { orderCode } = req.body
+        // console.log("orderCode via POSTMAN:", orderCode)
 
         // 1. Valida o parâmetro orderCode (passado via req.body para facilitar testes com POSTMAN)
-        // const { orderCode } = req.params
+        const { orderCode } = req.params
         console.log("orderCode recebido em zoneSoftOrder:", orderCode)
         if (!orderCode) {
             return res.status(400).json({ error: "orderCode não fornecido." })
