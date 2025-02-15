@@ -55,7 +55,6 @@ const zoneSoftMenu = async (req, res) => {
     try {
         // O menu deve vir no corpo da requisição (JSON)
         const menuData = req.body
-        console.log("Menu recebido:", menuData)
         // if (!menuData || !menuData.families) {
         //     return res.status(400).json({ error: "Dados do menu inválidos ou incompletos." })
         // }
@@ -64,16 +63,8 @@ const zoneSoftMenu = async (req, res) => {
         // Exemplo: cria um novo registro (você pode implementar lógica para atualizar o menu existente se necessário)
         await Menu.create(menuData)
         console.log("Menu salvo com sucesso!")
-        const responseBody = {
-            body: "",
-            header: {
-                statusCode: 204,
-                statusMessage: "No Content",
-                status: "HTTP/1.1 204 No Content"
-            }
-        }
         // retornar status 204 conforme documentação da ZoneSoft (sem corpo)
-        return res.status(204).end(responseBody)
+        return res.status(204).end()
     } catch (error) {
         console.error("Erro ao salvar o menu:", error.message)
         res.status(500).json({ error: "Erro ao salvar o menu.", details: error.message })
