@@ -192,7 +192,9 @@ const zoneSoftOrder = async (req, res) => {
         })
 
         console.log("Resposta da API de pedido:", response.data)
-        return res ? res.status(200).json(response.data) : response.data
+        // chamar funções do POS
+        // return res ? res.status(200).json(response.data) : response.data
+        return res.status(204).json(response.data)
     } catch (error) {
         console.error(
             "Erro ao enviar o pedido a zoneSoft:",
