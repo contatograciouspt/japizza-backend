@@ -279,7 +279,7 @@ const zoneSoftPosStatus = (req, res) => {
 // Coloca o POS online para receber encomendas (DELETE /pos/status/closing)
 const zoneSoftPosOnline = (req, res) => {
     console.log("DELETE /pos/status/closing: ", req.params, req.body)
-    return res.status(200).json()
+    return res.status(204).json()
 }
 
 
