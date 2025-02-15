@@ -232,7 +232,8 @@ const zoneSoftLogin = async (req, res) => {
 
 const zoneSoftOrderStatus = async (req, res) => {
     try {
-        const { order_id, status } = req.body // order_id é o mesmo que zoneSoftId do produto
+        const { order_id, status } = req.params
+        // const { order_id, status } = req.body // order_id é o mesmo que zoneSoftId do produto
         console.log("Recebido pedido de status:", order_id, status)
         if (!order_id || !status) {
             return res.status(400).json({ error: "order_id and status are required." })
@@ -306,11 +307,13 @@ const zoneSoftPosOffline = (req, res) => {
     return res.status(200).json({
         body: "",
         header: {
-            statusCode: 200,
-            statusMessage: "OK",
-            status: "HTTP/1.1 200 OK"
+            statusCode: 204,
+            statusMessage: "No Content",
+            status: "HTTP/1.1 204 No Content"
         }
     })
+    // console.log("DELETE /pos/status/closing")
+    // return res.sendStatus(204) // ou res.status(204).end()
 }
 
 
