@@ -267,60 +267,50 @@ const zoneSoftOrderStatus = async (req, res) => {
 }
 
 const zoneSoftPosStatus = (req, res) => {
-    console.log("GET /pos/status recebido:", req.params, req.body);
-    // verificar o metodo se é GET
-    if (req.method === "GET") {
-        // Verificar se o POS está online (por exemplo, verificando se há uma sessão ativa)
-        const isOnline = true; // Substitua por sua lógica de verificação
-        if (isOnline) {
-            const responseBody = {
-                body: "",
-                header: {
-                    statusCode: 200,
-                    statusMessage: "OK",
-                    status: "HTTP/1.1 200 OK"
-                }
-            };
+    console.log("GET /pos/status recebido:", req.params, req.body)
+    const isOnline = true // sua lógica para indicar se o POS está online
+    let responseBody
+    if (isOnline) {
+        responseBody = {
+            body: "",
+            header: {
+                statusCode: 200,
+                statusMessage: "OK",
+                status: "HTTP/1.1 200 OK"
+            }
         }
-
-        return res.status(200).json(responseBody);
-    };
+    } else {
+        console.log("POS offline")
+    }
+    return res.status(200).json(responseBody)
 }
+
 
 // Coloca o POS online para receber encomendas (DELETE /pos/status/closing)
 const zoneSoftPosOnline = (req, res) => {
-    console.log("DELETE /pos/status/closing: ", req.params, req.body);
-    // Verificar se o método é DELETE
-    if (req.method !== "DELETE") {
-        return res.status(405).json({ error: "Método não permitido" });
-    }
-
+    console.log("DELETE /pos/status/closing: ", req.params, req.body)
     return res.status(200).json({
         body: "",
         header: {
-            statusCode: 204,
-            statusMessage: "No Content",
-            status: "HTTP/1.1 204 No Content"
+            statusCode: 200,
+            statusMessage: "OK",
+            status: "HTTP/1.1 200 OK"
         }
-    });
-    // console.log("DELETE /pos/status/closing");
-    // return res.sendStatus(204); // ou res.status(204).end()
-};
+    })
+}
 
 
 // Coloca o POS offline para não receber encomendas (PUT /pos/status/closing)
 const zoneSoftPosOffline = (req, res) => {
-    console.log("PUT /pos/status/closing");
+    console.log("PUT /pos/status/closing: ", req.params, req.body)
     return res.status(200).json({
         body: "",
         header: {
-            statusCode: 204,
-            statusMessage: "No Content",
-            status: "HTTP/1.1 204 No Content"
+            statusCode: 200,
+            statusMessage: "OK",
+            status: "HTTP/1.1 200 OK"
         }
-    });
-    // console.log("DELETE /pos/status/closing");
-    // return res.sendStatus(204); // ou res.status(204).end()
+    })
 }
 
 
