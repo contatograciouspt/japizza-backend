@@ -1,3 +1,4 @@
+// routes/zonesoftRoutes.js
 const express = require("express")
 const router = express.Router()
 const {
@@ -26,10 +27,10 @@ router.delete("/pos/status/", zoneSoftPosOnline)
 router.get("/pos/status/", zoneSoftPosStatus)
 
 // Endpoint para colocar o POS online (DELETE)
-router.delete("/pos/status/", zoneSoftPosOnline)
+router.delete("/pos/status/closing", zoneSoftPosOnline)
 
 // Endpoint para colocar o POS offline (PUT)
-router.put("/pos/status/", zoneSoftPosOffline)
+router.put("/pos/status/closing", zoneSoftPosOffline)
 
 // Endpoint para testar enviar pedido para zoneSoft via POSTMAN
 router.post("/test", zoneSoftOrder)
