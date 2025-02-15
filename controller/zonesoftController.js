@@ -22,6 +22,32 @@ function generateHmacSignature(body, secret) {
 }
 
 /**
+ * Endpoint de login que gera um token JWT e, opcionalmente, dispara a sincronização do menu.
+ */
+const zoneSoftLogin = async (req, res) => {
+    try {
+        const data = req.body
+        console.log(data)
+        if (data.app_store_username === appKey && data.app_store_secret === secretKey) {
+            const payload = {
+                app: appName,
+                clientId: clientId,
+                timestamp: Date.now()
+            }
+            const token = jwt.sign(payload, secretKey, { expiresIn: "1h" })
+            console.log("Token gerado com sucesso:", token)
+            return res.status(200).json({ access_token: token, expires_in: 36000 })
+        } else {
+            return res.status(401).json({ error: "Credenciais inválidas." })
+        }
+    } catch (error) {
+        console.error("Erro ao fazer login:", error.message)
+        res.status(500).json({ error: "Erro ao fazer login", details: error.message })
+    }
+}
+
+
+/**
  * Endpoint para sincronização do menu.
  * Espera receber o token via query (ou params) e o repassa para a função interna.
  */
@@ -29,17 +55,25 @@ const zoneSoftMenu = async (req, res) => {
     try {
         // O menu deve vir no corpo da requisição (JSON)
         const menuData = req.body
-        if (!menuData || !menuData.families) {
-            return res.status(400).json({ error: "Dados do menu inválidos ou incompletos." })
-        }
+        console.log("Menu recebido:", menuData)
+        // if (!menuData || !menuData.families) {
+        //     return res.status(400).json({ error: "Dados do menu inválidos ou incompletos." })
+        // }
 
         // Salva o menu recebido no banco de dados (pode ser feito como novo documento ou atualização, conforme sua lógica)
         // Exemplo: cria um novo registro (você pode implementar lógica para atualizar o menu existente se necessário)
         await Menu.create(menuData)
         console.log("Menu salvo com sucesso!")
-
+        const responseBody = {
+            body: "",
+            header: {
+                statusCode: 204,
+                statusMessage: "No Content",
+                status: "HTTP/1.1 204 No Content"
+            }
+        }
         // retornar status 204 conforme documentação da ZoneSoft (sem corpo)
-        return res.status(204).end()
+        return res.status(204).end(responseBody)
     } catch (error) {
         console.error("Erro ao salvar o menu:", error.message)
         res.status(500).json({ error: "Erro ao salvar o menu.", details: error.message })
@@ -206,30 +240,6 @@ const zoneSoftOrder = async (req, res) => {
         return res && res.status
             ? res.status(500).json({ error: "Erro ao enviar o pedido para ZoneSoft", details: error.message })
             : Promise.reject(error)
-    }
-}
-
-/**
- * Endpoint de login que gera um token JWT e, opcionalmente, dispara a sincronização do menu.
- */
-const zoneSoftLogin = async (req, res) => {
-    try {
-        const data = req.body
-        if (data.app_store_username === appKey && data.app_store_secret === secretKey) {
-            const payload = {
-                app: appName,
-                clientId: clientId,
-                timestamp: Date.now()
-            }
-            const token = jwt.sign(payload, secretKey, { expiresIn: "1h" })
-            console.log("Token gerado com sucesso:", token)
-            return res.status(200).json({ access_token: token, expires_in: 36000 })
-        } else {
-            return res.status(401).json({ error: "Credenciais inválidas." })
-        }
-    } catch (error) {
-        console.error("Erro ao fazer login:", error.message)
-        res.status(500).json({ error: "Erro ao fazer login", details: error.message })
     }
 }
 
