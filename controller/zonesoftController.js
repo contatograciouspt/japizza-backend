@@ -7,9 +7,12 @@ const Menu = require("../models/Menu")
 const Product = require("../models/Product")
 
 // Recupera as variáveis de ambiente
-const clientId = process.env.ZONESOFT_CLIENT_ID
-const appKey = process.env.ZONESOFT_APP_KEY
-const secretKey = process.env.ZONESOFT_APP_SECRET
+// const clientId = process.env.ZONESOFT_CLIENT_ID
+const clientId = process.env.ZS_SANDBOX_APP_CLIENT_ID
+// const appKey = process.env.ZONESOFT_APP_KEY
+const appKey = process.env.ZS_SANDBOX_APP_KEY
+const secretKey = process.env.ZS_SANDBOX_APP_SECRET
+// const secretKey = process.env.ZONESOFT_APP_SECRET
 const appName = "Japizza"
 const apiUrlOrder = "https://zsroi.zonesoft.org/v1.0/integration/order"
 
@@ -232,8 +235,8 @@ const zoneSoftLogin = async (req, res) => {
 
 const zoneSoftOrderStatus = async (req, res) => {
     try {
-        const { order_id, status } = req.params
-        // const { order_id, status } = req.body // order_id é o mesmo que zoneSoftId do produto
+        // const { order_id, status } = req.params
+        const { order_id, status } = req.body // order_id é o mesmo que zoneSoftId do produto
         console.log("Recebido pedido de status:", order_id, status)
         if (!order_id || !status) {
             return res.status(400).json({ error: "order_id and status are required." })
