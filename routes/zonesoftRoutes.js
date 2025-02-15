@@ -21,7 +21,7 @@ router.post("/menu", zoneSoftMenu)
 router.post("/order/status", zoneSoftOrderStatus)
 
 // Para LIGAR o POS (online):  Endpoint ajustado para /pos/status/ e método DELETE
-router.delete("/pos/status/", zoneSoftPosOnline)
+router.get("/pos/status/", zoneSoftPosOnline)
 
 // Endpoint para obter o estado do POS (GET)
 router.get("/pos/status/", zoneSoftPosStatus)

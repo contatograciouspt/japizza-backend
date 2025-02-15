@@ -233,6 +233,7 @@ const zoneSoftLogin = async (req, res) => {
 const zoneSoftOrderStatus = async (req, res) => {
     try {
         const { order_id, status } = req.body // order_id é o mesmo que zoneSoftId do produto
+        console.log("Recebido pedido de status:", order_id, status)
         if (!order_id || !status) {
             return res.status(400).json({ error: "order_id and status are required." })
         }
@@ -295,7 +296,7 @@ const zoneSoftPosOnline = async (req, res) => {
                 status: "HTTP/1.1 204 No Content"
             }
         };
-        return res.status(204).json(responseBody);
+        return res.status(200).json(responseBody);
     } catch (error) {
         console.error("Erro em zoneSoftPosOnline:", error.message);
         return res.status(500).json({ error: "Erro ao processar status do POS (Online)", details: error.message });
@@ -314,7 +315,7 @@ const zoneSoftPosOffline = async (req, res) => {
                 status: "HTTP/1.1 204 No Content"
             }
         };
-        return res.status(204).json(responseBody);
+        return res.status(200).json(responseBody);
     } catch (error) {
         console.error("Erro em zoneSoftPosOffline:", error.message);
         return res.status(500).json({ error: "Erro ao processar status do POS (Offline)", details: error.message });
