@@ -332,3 +332,4 @@ const zoneSoftPosStatus = (req, res) => {
         zoneSoftPosStatus,
         zoneSoftPosOffline
     }
+}
