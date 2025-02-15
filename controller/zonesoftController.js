@@ -46,7 +46,6 @@ const zoneSoftLogin = async (req, res) => {
     }
 }
 
-
 /**
  * Endpoint para sincronização do menu.
  * Espera receber o token via query (ou params) e o repassa para a função interna.
@@ -273,47 +272,22 @@ const zoneSoftOrderStatus = async (req, res) => {
 
 const zoneSoftPosStatus = (req, res) => {
     console.log("GET /pos/status recebido:", req.params, req.body)
-    const responseBody = {
-        body: "",
-        header: {
-            statusCode: 200,
-            statusMessage: "OK",
-            status: "HTTP/1.1 200 OK"
-        }
-    }
-    return res.status(200).json(responseBody)
+    return res.status(200).json()
 }
 
 
 // Coloca o POS online para receber encomendas (DELETE /pos/status/closing)
 const zoneSoftPosOnline = (req, res) => {
     console.log("DELETE /pos/status/closing: ", req.params, req.body)
-    const responseBody = {
-        body: "",
-        header: {
-            statusCode: 200,
-            statusMessage: "OK",
-            status: "HTTP/1.1 200 OK"
-        }
-    }
-    return res.status(200).json(responseBody)
+    return res.status(200).json()
 }
 
 
 // Coloca o POS offline para não receber encomendas (PUT /pos/status/closing)
 const zoneSoftPosOffline = (req, res) => {
     console.log("PUT /pos/status/closing: ", req.params, req.body)
-    const responseBody = {
-        body: "",
-        header: {
-            statusCode: 204,
-            statusMessage: "No Content",
-            status: "HTTP/1.1 204 No Content"
-        }
-    }
-    return res.sendStatus(204).end(responseBody) // ou res.status(204).end()
+    return res.sendStatus(204).end() // ou res.status(204).end()
 }
-
 
 module.exports = {
     zoneSoftLogin,
