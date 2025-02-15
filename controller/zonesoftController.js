@@ -266,60 +266,48 @@ const zoneSoftOrderStatus = async (req, res) => {
     }
 }
 
-const zoneSoftPosStatus = async (req, res) => {
-    try {
-        console.log("GET /pos/status recebido:", req.params, req.body);
-        const responseBody = {
-            body: "",
-            header: {
-                statusCode: 200,
-                statusMessage: "OK",
-                status: "HTTP/1.1 200 OK"
-            }
-        };
-        return res.status(200).json(responseBody);
-    } catch (error) {
-        console.error("Erro em zoneSoftPosStatus:", error.message);
-        return res.status(500).json({ error: "Erro ao obter status do POS", details: error.message });
-    }
+const zoneSoftPosStatus = (req, res) => {
+    console.log("GET /pos/status recebido:", req.params, req.body);
+    const responseBody = {
+        body: "",
+        header: {
+            statusCode: 200,
+            statusMessage: "OK",
+            status: "HTTP/1.1 200 OK"
+        }
+    };
+    return res.status(200).json(responseBody);
 };
 
 // Coloca o POS online para receber encomendas (DELETE /pos/status/closing)
-const zoneSoftPosOnline = async (req, res) => {
-    try {
-        console.log("DELETE /pos/status/closing recebido:", req.params, req.body);
-        const responseBody = {
-            body: "",
-            header: {
-                statusCode: 204,
-                statusMessage: "No Content",
-                status: "HTTP/1.1 204 No Content"
-            }
-        };
-        return res.status(200).json(responseBody);
-    } catch (error) {
-        console.error("Erro em zoneSoftPosOnline:", error.message);
-        return res.status(500).json({ error: "Erro ao processar status do POS (Online)", details: error.message });
-    }
+const zoneSoftPosOnline = (req, res) => {
+    console.log("DELETE /pos/status/closing");
+    return res.status(200).json({
+        body: "",
+        header: {
+            statusCode: 204,
+            statusMessage: "No Content",
+            status: "HTTP/1.1 204 No Content"
+        }
+    });
+    // console.log("DELETE /pos/status/closing");
+    // return res.sendStatus(204); // ou res.status(204).end()
 };
 
+
 // Coloca o POS offline para não receber encomendas (PUT /pos/status/closing)
-const zoneSoftPosOffline = async (req, res) => {
-    try {
-        console.log("PUT /pos/status/closing recebido:", req.params, req.body);
-        const responseBody = {
-            body: "",
-            header: {
-                statusCode: 204,
-                statusMessage: "No Content",
-                status: "HTTP/1.1 204 No Content"
-            }
-        };
-        return res.status(200).json(responseBody);
-    } catch (error) {
-        console.error("Erro em zoneSoftPosOffline:", error.message);
-        return res.status(500).json({ error: "Erro ao processar status do POS (Offline)", details: error.message });
-    }
+const zoneSoftPosOffline = (req, res) => {
+    console.log("PUT /pos/status/closing");
+    return res.status(200).json({
+        body: "",
+        header: {
+            statusCode: 204,
+            statusMessage: "No Content",
+            status: "HTTP/1.1 204 No Content"
+        }
+    });
+    // console.log("DELETE /pos/status/closing");
+    // return res.sendStatus(204); // ou res.status(204).end()
 }
 
 

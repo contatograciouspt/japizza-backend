@@ -20,17 +20,9 @@ router.post("/menu", zoneSoftMenu)
 // Rota para atualizar o status do pedido
 router.post("/order/status", zoneSoftOrderStatus)
 
-// Para LIGAR o POS (online):  Endpoint ajustado para /pos/status/ e método DELETE
-router.get("/pos/status/", zoneSoftPosOnline)
-
-// Endpoint para obter o estado do POS (GET)
-router.get("/pos/status/", zoneSoftPosStatus)
-
-// Endpoint para colocar o POS online (DELETE)
-router.delete("/pos/status/", zoneSoftPosOnline)
-
-// Endpoint para colocar o POS offline (PUT)
-router.put("/pos/status/", zoneSoftPosOffline)
+router.get("/pos/status", zoneSoftPosStatus)        // GET p/ ping do POS
+router.delete("/pos/status/closing", zoneSoftPosOnline)  // DELETE p/ ficar online
+router.put("/pos/status/closing", zoneSoftPosOffline)    // PUT p/ ficar offline
 
 // Endpoint para testar enviar pedido para zoneSoft via POSTMAN
 router.post("/test", zoneSoftOrder)
