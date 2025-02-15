@@ -45,15 +45,15 @@ const zoneSoftMenu = async (req, res) => {
 
 const zoneSoftOrder = async (req, res) => {
     try {
-        const { orderCode } = req.body
-        console.log("orderCode via POSTMAN:", orderCode)
+        // const { orderCode } = req.body
+        // console.log("orderCode via POSTMAN:", orderCode)
 
         // 1. Valida o parâmetro orderCode (passado via req.body para facilitar testes com POSTMAN)
-        // const { orderCode } = req.params
-        // console.log("orderCode recebido em zoneSoftOrder:", orderCode)
-        // if (!orderCode) {
-        //     return res.status(400).json({ error: "orderCode não fornecido." })
-        // }
+        const { orderCode } = req.params
+        console.log("orderCode recebido em zoneSoftOrder:", orderCode)
+        if (!orderCode) {
+            return res.status(400).json({ error: "orderCode não fornecido." })
+        }
 
         // 2. Busca a order com o orderCode e status "Pago"
         const order = await Order.findOne({ orderCode: orderCode, status: "Pago" })
