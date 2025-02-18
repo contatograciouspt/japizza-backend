@@ -49,9 +49,10 @@ const addAllAttributes = async (req, res) => {
 
 const getAllAttributes = async (req, res) => {
   try {
-    const { type, option, option1, option2 } = req.query;
+    // const { type, option, option1, option2 } = req.query;
+    const { type, option, option1 } = req.query;
     const attributes = await Attribute.find({
-      $or: [{ type: type }, { $or: [{ option: option }, { option: option1 }, { option: option2 }] }],
+      $or: [{ type: type }, { $or: [{ option: option }, { option: option1 }] }],
     });
     res.send(attributes);
   } catch (err) {

@@ -2,19 +2,61 @@ const Product = require("../models/Product");
 const mongoose = require("mongoose");
 const Category = require("../models/Category");
 const { languageCodes } = require("../utils/data");
-const Menu = require("../models/Menu");
 
+const addProduct = async (req, res) => {
+  try {
+    const newProduct = new Product({
+      ...req.body,
+      // productId: cname + (count + 1),
+      productId: req.body.productId
+        ? req.body.productId
+        : new mongoose.Types.ObjectId(),
+    });
+
+    await newProduct.save();
+    res.send(newProduct);
+  } catch (err) {
+    console.log("erro ao adicionar produto", err);
+    res.status(500).send({
+      message: err.message,
+    });
+  }
+};
+
+// nova função proposta para salvar novos produtos associando aos ID's de menus em 'menus'
 // const addProduct = async (req, res) => {
 //   try {
 //     const newProduct = new Product({
 //       ...req.body,
-//       // productId: cname + (count + 1),
-//       productId: req.body.productId
-//         ? req.body.productId
-//         : mongoose.Types.ObjectId(),
+//       productId: req.body.productId ? req.body.productId : mongoose.Types.ObjectId(),
 //     });
-
 //     await newProduct.save();
+
+//     // Tenta mapear o produto com o menu sincronizado, se houver um menu salvo
+//     const menuDoc = await Menu.findOne({}, {}, { sort: { createdAt: -1 } });
+//     if (menuDoc && menuDoc.families) {
+//       // Exemplo de mapeamento: procura pelo slug ou pelo nome
+//       menuDoc.families.forEach(family => {
+//         // Se existirem subfamilies, itere nelas; senão, use a família principal
+//         family.subfamilies.forEach(sub => {
+//           sub.products.forEach(menuProductId => {
+//             // Exemplo: se o nome do produto for igual (ou similar) ao nome do produto do menu
+//             // Aqui você precisará de uma lógica de comparação (pode usar funções de similaridade, ou um mapeamento manual)
+//             if (newProduct.title.pt.toLowerCase() === sub.name.toLowerCase()) {
+//               newProduct.zoneSoftId = menuProductId; // Associa o ID do menu
+//             }
+//           });
+//         });
+//         // Se não houver subfamilies, pode tentar comparar com a família principal
+//         family.products && family.products.forEach(menuProductId => {
+//           if (newProduct.title.pt.toLowerCase() === family.name.toLowerCase()) {
+//             newProduct.zoneSoftId = menuProductId;
+//           }
+//         });
+//       });
+//       await newProduct.save();
+//     }
+
 //     res.send(newProduct);
 //   } catch (err) {
 //     res.status(500).send({
@@ -22,48 +64,6 @@ const Menu = require("../models/Menu");
 //     });
 //   }
 // };
-
-// nova função proposta para salvar novos produtos associando aos ID's de menus em 'menus'
-const addProduct = async (req, res) => {
-  try {
-    const newProduct = new Product({
-      ...req.body,
-      productId: req.body.productId ? req.body.productId : mongoose.Types.ObjectId(),
-    });
-    await newProduct.save();
-
-    // Tenta mapear o produto com o menu sincronizado, se houver um menu salvo
-    const menuDoc = await Menu.findOne({}, {}, { sort: { createdAt: -1 } });
-    if (menuDoc && menuDoc.families) {
-      // Exemplo de mapeamento: procura pelo slug ou pelo nome
-      menuDoc.families.forEach(family => {
-        // Se existirem subfamilies, itere nelas; senão, use a família principal
-        family.subfamilies.forEach(sub => {
-          sub.products.forEach(menuProductId => {
-            // Exemplo: se o nome do produto for igual (ou similar) ao nome do produto do menu
-            // Aqui você precisará de uma lógica de comparação (pode usar funções de similaridade, ou um mapeamento manual)
-            if (newProduct.title.pt.toLowerCase() === sub.name.toLowerCase()) {
-              newProduct.zoneSoftId = menuProductId; // Associa o ID do menu
-            }
-          });
-        });
-        // Se não houver subfamilies, pode tentar comparar com a família principal
-        family.products && family.products.forEach(menuProductId => {
-          if (newProduct.title.pt.toLowerCase() === family.name.toLowerCase()) {
-            newProduct.zoneSoftId = menuProductId;
-          }
-        });
-      });
-      await newProduct.save();
-    }
-
-    res.send(newProduct);
-  } catch (err) {
-    res.status(500).send({
-      message: err.message,
-    });
-  }
-};
 
 
 const addAllProducts = async (req, res) => {
