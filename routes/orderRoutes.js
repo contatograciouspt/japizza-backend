@@ -11,10 +11,19 @@ const {
   getDashboardRecentOrder,
   getDashboardCount,
   getDashboardAmount,
+  getAllCustomOrders,
+  getOrderByEmail,
 } = require("../controller/orderController");
+
+
+// get orders by email
+router.get("/order/:email", getOrderByEmail);
 
 //get all orders
 router.get("/", getAllOrders);
+
+// get all custom orders
+router.get("/custom", getAllCustomOrders);
 
 // get dashboard orders data
 router.get("/dashboard", getDashboardOrders);

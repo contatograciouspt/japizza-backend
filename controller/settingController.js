@@ -219,7 +219,7 @@ const getStoreCustomizationSetting = async (req, res) => {
     );
 
     if (!storeCustomizationSetting) {
-      return res.status(404).send({ message: "Settings not found" });
+      return res.status(404).send({ message: "Configurações não encontradas" });
     }
 
     res.send(storeCustomizationSetting.setting);
@@ -686,7 +686,7 @@ const updateStoreCustomizationSetting = async (req, res) => {
     console.log("Configurações customizadas atualizadas para a loja: ", storeCustomizationSetting);
     res.send({
       data: storeCustomizationSetting.setting,
-      message: "Online Store Customization Setting Update Successfully!",
+      message: "Atualização da configuração de personalização da loja online com sucesso!",
     });
   } catch (err) {
     console.log("Erro ao atualizar configurações para a loja: ", err);

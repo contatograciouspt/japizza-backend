@@ -1,5 +1,19 @@
 const Order = require("../models/Order");
 
+// obter pedidos com função customizada para trazer dados da viva wallet
+const getAllCustomOrders = async (req, res) => {
+  try {
+    const findOrders = await Order.find({});
+    console.log("Pedidos encontrados: ", findOrders);
+    res.send(findOrders);
+  } catch (error) {
+    console.log("Erro ao obters pedidos: ", error);
+    res.status(500).send({
+      message: err.message,
+    });
+  }
+}
+
 const getAllOrders = async (req, res) => {
   const {
     day,
@@ -127,6 +141,7 @@ const getAllOrders = async (req, res) => {
 
 const getOrderCustomer = async (req, res) => {
   try {
+    console.log("req.params.id", req.params.id);
     const orders = await Order.find({ user: req.params.id }).sort({ _id: -1 });
     res.send(orders);
   } catch (err) {
@@ -143,6 +158,21 @@ const getOrderById = async (req, res) => {
   } catch (err) {
     res.status(500).send({
       message: err.message,
+    });
+  }
+};
+
+const getOrderByEmail = async (req, res) => {
+  try {
+    const { email } = req.params;
+
+    const orders = await Order.find({ "cart.user_info.email": email });
+
+    res.status(200).json(orders)
+  } catch (error) {
+    console.log("Erro ao encontrar pedidos com email: ", error);
+    res.status(500).send({
+      message: error.message,
     });
   }
 };
@@ -654,6 +684,7 @@ const getDashboardOrders = async (req, res) => {
 module.exports = {
   getAllOrders,
   getOrderById,
+  getOrderByEmail,
   getOrderCustomer,
   updateOrder,
   deleteOrder,
@@ -662,4 +693,5 @@ module.exports = {
   getDashboardRecentOrder,
   getDashboardCount,
   getDashboardAmount,
+  getAllCustomOrders
 };

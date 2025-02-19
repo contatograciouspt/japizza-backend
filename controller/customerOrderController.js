@@ -175,7 +175,10 @@ const getOrderCustomer = async (req, res) => {
 };
 const getOrderById = async (req, res) => {
   try {
+    const idOrder = req.params.id;
+    console.log("ID recebido: ", idOrder);
     const order = await Order.findById(req.params.id);
+    console.log("order by ID: ", order);
     res.send(order);
   } catch (err) {
     res.status(500).send({
@@ -183,6 +186,7 @@ const getOrderById = async (req, res) => {
     });
   }
 };
+
 
 module.exports = {
   addOrder,

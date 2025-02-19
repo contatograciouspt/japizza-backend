@@ -90,7 +90,7 @@ const addAllCustomers = async (req, res) => {
 
 const loginCustomer = async (req, res) => {
   try {
-    console.log("Recebendo email para login...", req.body.email);
+    // console.log("Recebendo email para login...", req.body.email);
     const customer = await Customer.findOne({ email: req.body.email });
 
     if (
