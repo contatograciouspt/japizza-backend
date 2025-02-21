@@ -4,7 +4,7 @@ const Order = require("../models/Order");
 const getAllCustomOrders = async (req, res) => {
   try {
     const findOrders = await Order.find({});
-    console.log("Pedidos encontrados: ", findOrders);
+    // console.log("Pedidos encontrados: ", findOrders);
     res.send(findOrders);
   } catch (error) {
     console.log("Erro ao obters pedidos: ", error);

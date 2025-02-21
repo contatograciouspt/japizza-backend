@@ -292,18 +292,19 @@ const updateStatus = (req, res) => {
   );
 };
 
-const deleteProduct = (req, res) => {
-  Product.deleteOne({ _id: req.params.id }, (err) => {
-    if (err) {
-      res.status(500).send({
-        message: err.message,
-      });
-    } else {
-      res.status(200).send({
-        message: "Produto deletado com sucesso!",
-      });
-    }
-  });
+const deleteProduct = async (req, res) => {
+  console.log("req.params.id", req.params.id);
+  try {
+    await Product.deleteOne({ _id: req.params.id });
+    res.status(200).send({
+      message: "Produto deletado com sucesso!"
+    });
+  } catch (error) {
+    console.log("Erro ao deletar o produto: ", error);
+    res.status(500).send({
+      message: error.message
+    });
+  }
 };
 
 const getShowingStoreProducts = async (req, res) => {
