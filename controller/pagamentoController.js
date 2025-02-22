@@ -1,7 +1,7 @@
-require("dotenv").config();
-const axios = require("axios");
-const qs = require("qs");
-const Order = require("../models/Order");
+require("dotenv").config()
+const axios = require("axios")
+const qs = require("qs")
+const Order = require("../models/Order")
 
 const createPaymentOrder = async (req, res) => {
     const data = req.body
@@ -34,12 +34,16 @@ const createPaymentOrder = async (req, res) => {
             disableWallet: data.disableWallet,
             sourceCode: data.sourceCode,
             cart: data.cart,
-            pagamentoNaEntrega: data.pagamentoNaEntrega
-        };
+            agendamento: data.agendamento,
+            pagamentoNaEntrega: data.pagamentoNaEntrega,
+            paymentMethodDetails: data.paymentMethodDetails,
+            localizacao: data.localizacao,
+            status: data.status,
+        }
 
         // Salvar dados no banco de dados
-        const newOrder = new Order(orderPayload);
-        const savedInitialOrder = await newOrder.save();
+        const newOrder = new Order(orderPayload)
+        const savedInitialOrder = await newOrder.save()
 
         const response = await axios.post(demoTokenUrl,
             qs.stringify({ grant_type: "client_credentials" }), {
@@ -61,32 +65,32 @@ const createPaymentOrder = async (req, res) => {
         )
 
         if (orderResponse.status === 200) {
-            console.log("Ordem criada no backend: ", orderResponse.data);
+            console.log("Ordem criada no backend: ", orderResponse.data)
 
             // Atualizar o pedido com o orderCode
             const updatedOrder = await Order.findByIdAndUpdate(
                 savedInitialOrder._id,
                 { $set: { orderCode: orderResponse.data.orderCode } },
                 { new: true } // Retorna o objeto atualizado
-            );
+            )
             
             // Verifica se a atualização foi bem-sucedida
             if (!updatedOrder) {
-                return res.status(500).json({ error: "Falha ao atualizar o pedido com o orderCode." });
+                return res.status(500).json({ error: "Falha ao atualizar o pedido com o orderCode." })
             }
 
             // Envia o objeto atualizado com orderCode para o frontend
             res.status(200).json({
                 orderCode: updatedOrder.orderCode,
                 message: "Ordem de pagamento criada com sucesso.",
-            });
+            })
         } else {
             // Verifica se a resposta do viva wallet existe e manda o erro caso exista
             const errorMessage = orderResponse.response
                 ? orderResponse.response.data ||
                 "Erro ao processar o pagamento no Viva Wallet."
-                : "Erro ao processar o pagamento.";
-            return res.status(400).json({ error: errorMessage });
+                : "Erro ao processar o pagamento."
+            return res.status(400).json({ error: errorMessage })
         }
     } catch (error) {
         console.log("Erro ao fazer pagamento: ", error)
@@ -120,11 +124,16 @@ const savecashOnDelivery = async (req, res) => {
             disableWallet: data.disableWallet,
             sourceCode: data.sourceCode,
             cart: data.cart,
+            status: data.status,
+            agendamento: data.agendamento,
+            pagamentoNaEntrega: data.pagamentoNaEntrega,
+            paymentMethodDetails: data.paymentMethodDetails,
+            localizacao: data.localizacao,
         }
 
         console.log("Salvando pedido de pagamento na entrega: ", orderToSave)
-        const newOrder = new Order(orderToSave);
-        await newOrder.save();
+        const newOrder = new Order(orderToSave)
+        await newOrder.save()
         res.status(200).json({ message: "Pedido salvo com sucesso." })
     } catch (error) {
         console.log("Erro ao salvar pedido: ", error)
@@ -153,28 +162,28 @@ const getCustomAllOrders = async (req, res) => {
 // Função para deletar um pedido pelo ID
 const deleteOrderByID = async (req, res) => {
     try {
-        const orderID = req.params.id;
-        console.log("Deletando pedido do ID: ", orderID);
-        const order = await Order.findByIdAndDelete(orderID);
-        res.status(200).json(order);
+        const orderID = req.params.id
+        console.log("Deletando pedido do ID: ", orderID)
+        const order = await Order.findByIdAndDelete(orderID)
+        res.status(200).json(order)
     } catch (error) {
         res.status(400).json({
             message: "Erro ao deletar pedido: " + error
-        });
-        console.log("Erro ao deletar pedido: ", error);
+        })
+        console.log("Erro ao deletar pedido: ", error)
     }
 }
 
 // Função para atualizar o status de um pedido
 const updateOrderByID = async (req, res) => {
     try {
-        const orderId = req.params.id;
-        const updatedOrder = await Order.findByIdAndUpdate(orderId, { $set: req.body }, { new: true });
-        res.status(200).json(updatedOrder);
+        const orderId = req.params.id
+        const updatedOrder = await Order.findByIdAndUpdate(orderId, { $set: req.body }, { new: true })
+        res.status(200).json(updatedOrder)
     } catch (err) {
-        res.status(500).json(err);
+        res.status(500).json(err)
     }
-};
+}
 
 module.exports = {
     createPaymentOrder,

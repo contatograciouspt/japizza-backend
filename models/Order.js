@@ -12,10 +12,6 @@ const orderSchema = new mongoose.Schema(
             type: String,
             required: false
         },
-        pagamentoNaEntrega: {
-            type: Boolean,
-            required: false
-        },
         invoice: {
             type: Number,
             required: false,
@@ -107,6 +103,22 @@ const orderSchema = new mongoose.Schema(
             type: String,
             enum: ["Pendente", "Pago", "Cancelado"],
         },
+        localizacao: {
+            type: Object,
+            required: false,
+        },
+        pagamentoNaEntrega: {
+            type: Boolean,
+            required: false
+        },
+        paymentMethodDetails: {
+            type: Object,
+            required: false,
+        },
+        agendamento: {
+            type: Object,
+            required: false,
+        }
     },
     {
         timestamps: true,
