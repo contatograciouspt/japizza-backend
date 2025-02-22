@@ -40,6 +40,7 @@ const createPaymentOrder = async (req, res) => {
             paymentMethodDetails: data.paymentMethodDetails,
             localizacao: data.localizacao,
             status: data.status,
+            user_info: data.user_info,
         }
 
         // Salvar dados no banco de dados
@@ -94,6 +95,7 @@ const createPaymentOrder = async (req, res) => {
             return res.status(400).json({ error: errorMessage })
         }
     } catch (error) {
+        res.status(500).json({ error: "Erro ao criar ordem de pagamento." })
         console.log("Erro ao fazer pagamento: ", error)
     }
 }
@@ -131,6 +133,7 @@ const savecashOnDelivery = async (req, res) => {
             pagamentoNaEntrega: data.pagamentoNaEntrega,
             paymentMethodDetails: data.paymentMethodDetails,
             localizacao: data.localizacao,
+            user_info: data.user_info,
         }
 
         console.log("Salvando pedido de pagamento na entrega: ", orderToSave)
