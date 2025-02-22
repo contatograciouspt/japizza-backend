@@ -5,6 +5,7 @@ const Order = require("../models/Order")
 
 const createPaymentOrder = async (req, res) => {
     const data = req.body
+    console.log("Dados recebidos para criar pagamento: ", data)
     try {
         const clientID = process.env.VIVA_CLIENT_ID
         const clientSecret = process.env.VIVA_CLIENT_SECRET
@@ -75,7 +76,7 @@ const createPaymentOrder = async (req, res) => {
                 { $set: { orderCode: orderResponse.data.orderCode } },
                 { new: true } // Retorna o objeto atualizado
             )
-            
+
             // Verifica se a atualização foi bem-sucedida
             if (!updatedOrder) {
                 return res.status(500).json({ error: "Falha ao atualizar o pedido com o orderCode." })
@@ -127,12 +128,12 @@ const savecashOnDelivery = async (req, res) => {
             disableWallet: data.disableWallet,
             sourceCode: data.sourceCode,
             cart: data.cart,
-            status: data.status,
             agendamento: data.agendamento,
             additionalInformation: data.additionalInformation,
             pagamentoNaEntrega: data.pagamentoNaEntrega,
             paymentMethodDetails: data.paymentMethodDetails,
             localizacao: data.localizacao,
+            status: data.status,
             user_info: data.user_info,
         }
 
