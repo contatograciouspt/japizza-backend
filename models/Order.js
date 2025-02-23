@@ -1,5 +1,5 @@
-// const mongoose = require("mongoose");
-// const AutoIncrement = require("mongoose-sequence")(mongoose);
+// const mongoose = require("mongoose")
+// const AutoIncrement = require("mongoose-sequence")(mongoose)
 
 // const orderSchema = new mongoose.Schema(
 //     {
@@ -123,7 +123,7 @@
 //     {
 //         timestamps: true,
 //     }
-// );
+// )
 
 // const Order = mongoose.model(
 //     "Order",
@@ -131,22 +131,36 @@
 //         inc_field: "invoice",
 //         start_seq: 10000,
 //     })
-// );
-// module.exports = Order;
+// )
+// module.exports = Order
 
 
-const mongoose = require("mongoose");
-const AutoIncrement = require("mongoose-sequence")(mongoose);
+const mongoose = require("mongoose")
+const AutoIncrement = require("mongoose-sequence")(mongoose)
 
 const orderSchema = new mongoose.Schema({
     cart: [{
         _id: String,
-        productId: String,
-        title: String,
-        slug: String,
-        image: String,
-        variant: Object,
-        price: Number,
+        productId: {
+            type: String,
+            required: false
+        },
+        title: {
+            type: String,
+            required: false
+        },
+        image: {
+            type: String,
+            required: false
+        },
+        variant: {
+            type: Object,
+            required: false
+        },
+        price: {
+            type: Number,
+            required: false
+        },
         extras: [String],
         originalPrice: Number,
         quantity: Number,
@@ -162,7 +176,8 @@ const orderSchema = new mongoose.Schema({
         city: String,
         country: String,
         zipCode: String,
-        nif: String
+        nif: String,
+        additionalInformation: String,
     },
     amount: Number,
     customerTrns: [String],
@@ -182,7 +197,6 @@ const orderSchema = new mongoose.Schema({
         horario: String
     },
     localizacao: String,
-    additionalInformation: String,
     frete: Number,
     pagamentoNaEntrega: String,
     paymentMethodDetails: {
@@ -202,5 +216,5 @@ const Order = mongoose.model(
         inc_field: "invoice",
         start_seq: 10000,
     })
-);
-module.exports = Order;
+)
+module.exports = Order

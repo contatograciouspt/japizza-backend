@@ -64,169 +64,6 @@ const zoneSoftMenu = async (req, res) => {
     }
 }
 
-// const zoneSoftOrder = async (req, res) => {
-//     try {
-//         // const { orderCode } = req.body
-//         // console.log("orderCode via POSTMAN:", orderCode)
-
-//         // 1. Valida o parâmetro orderCode (passado via req.body para facilitar testes com POSTMAN)
-//         const { orderCode } = req.params
-//         console.log("orderCode recebido em zoneSoftOrder:", orderCode)
-//         if (!orderCode) {
-//             return res.status(400).json({ error: "orderCode não fornecido." })
-//         }
-
-//         // 2. Busca a order com o orderCode e status "Pago"
-//         const order = await Order.findOne({ orderCode: orderCode, status: "Pago" })
-//         if (!order) {
-//             return res.status(404).json({ error: "Order não encontrado ou não foi pago." })
-//         }
-
-//         // 3. Converte a order para objeto simples
-//         const orderData = JSON.parse(JSON.stringify(order))
-
-//         // 4. Extrai o item do pedido do primeiro grupo de itens (ajuste se houver múltiplos)
-//         const orderItem =
-//             orderData.cart &&
-//                 orderData.cart.length > 0 &&
-//                 orderData.cart[0].cart &&
-//                 orderData.cart[0].cart.length > 0
-//                 ? orderData.cart[0].cart[0]
-//                 : null
-//         if (!orderItem || !orderItem.productId) {
-//             throw new Error("Nenhum item de pedido encontrado ou productId ausente.")
-//         }
-//         console.log("Product ID do pedido:", orderItem.productId)
-
-//         // 5. Busca o produto na collection "products" usando o productId do item do pedido
-//         const product = await Product.findOne({ productId: orderItem.productId })
-//         if (!product) {
-//             throw new Error(`Produto com productId ${orderItem.productId} não encontrado em products.`)
-//         }
-//         if (!product.zoneSoftId) {
-//             throw new Error(`Produto ${orderItem.productId} não possui zoneSoftId mapeado.`)
-//         }
-//         console.log("zoneSoftId do produto encontrado:", product.zoneSoftId)
-
-//         // 6. Busca o menu sincronizado – assume o menu mais recente
-//         const menuDoc = await Menu.findOne({}, {}, { sort: { createdAt: -1 } })
-//         if (!menuDoc || !menuDoc.products) {
-//             throw new Error("Menu não encontrado ou sem produtos.")
-//         }
-//         console.log("Menu encontrado, continuando...")
-
-//         // 7. Procura no array "products" do menu um objeto cujo campo "id" seja igual ao product.zoneSoftId
-//         let matchedMenuProduct = null
-//         for (const prod of menuDoc.products) {
-//             if (typeof prod === "object" && String(prod.id) === String(product.zoneSoftId)) {
-//                 matchedMenuProduct = prod
-//                 break
-//             }
-//         }
-//         if (!matchedMenuProduct) {
-//             throw new Error(`Produto com zoneSoftId ${product.zoneSoftId} não encontrado no menu.`)
-//         }
-//         console.log(`Produto correspondente encontrado no menu: ${matchedMenuProduct.name}`)
-
-//         // 7.1 Realiza um replace no nome para remover dígitos e espaços iniciais (ex.: "01 MARGUERITA" -> "MARGUERITA")
-//         const productName = matchedMenuProduct.name
-//             ? matchedMenuProduct.name
-//             : ""
-//         console.log(`Nome do produto encontrado no menu: ${productName}`)
-
-//         // 8. Monta o item do pedido usando os dados obtidos
-//         const productItem = {
-//             quantity: orderItem.quantity || 1,
-//             price: Number(matchedMenuProduct.price), // Preço conforme salvo no menu (em centavos)
-//             discount: orderItem.prices ? (orderItem.prices.discount || 0) : 0,
-//             name: productName,
-//             id: matchedMenuProduct.id || "",
-//             attributes: [] // Adicione atributos se necessário
-//         }
-
-//         // 9. Monta o objeto do pedido conforme o padrão exigido pela ZoneSoft.
-//         // Convertendo valores monetários para centavos quando necessário.
-//         const zonesoftOrderData = {
-//             order_id: order.orderCode.toString(), // string
-//             store_id: clientId, // string
-//             type_order: orderData.shippingOption === "shipping" ? "DELIVERY" : "PICKUP", // "DELIVERY" ou "PICKUP"
-//             order_time: new Date(order.createdAt).toISOString().slice(0, 19).replace("T", " "), // formato "YYYY-MM-DD HH:MM:SS"
-//             estimated_pickup_time: new Date(new Date(order.createdAt).getTime() + 30 * 60000)
-//                 .toISOString().slice(0, 19).replace("T", " "),
-//             currency: "EUR", // string
-//             delivery_fee: Math.round(Number(orderData.shippingCost) * 100) || 0, // number, em centavos
-//             courier: {
-//                 name: "",           // se não houver, vazio
-//                 phone_number: "",   // vazio
-//                 license_plate: ""   // vazio
-//             },
-//             customer: {
-//                 name: orderData.cart[0]?.user_info?.name || "",
-//                 phone: orderData.cart[0]?.user_info?.contact || "",
-//                 nif: orderData.cart[0]?.user_info?.nif || "", // ou "Não informado"
-//                 email: orderData.cart[0]?.user_info?.email || ""
-//             },
-//             products: [productItem], // array de produtos já montado
-//             obs: orderData.customerTrns ? orderData.customerTrns.join(" ") : "",
-//             orderIsAlreadyPaid: true, // boolean
-//             payment_type: orderData.payment_type || 1, // number (1,2,...)
-//             delivery_address: {
-//                 label: orderData.cart[0]?.user_info?.address || "",
-//                 latitude: orderData.merchantTrns || "", // se disponível
-//                 longitude: orderData.merchantTrns || "" // se disponível
-//             },
-//             is_picked_up_by_customer: orderData.shippingOption !== "shipping", // boolean
-//             discounted_products_total: 0, // number
-//             total_customer_to_pay: Math.round(Number(orderData.total) * 100) || 0, // number em centavos
-//             payment_charges: {
-//                 total: Number(orderData.amount) || 0,           // number, em centavos
-//                 sub_total: Math.round(Number(orderData.subTotal) * 100) || 0, // number
-//                 tax: 0,                                         // number
-//                 total_fee: 0,                                   // number
-//                 total_fee_tax: 0,                               // number
-//                 bag_fee: 0,                                     // number
-//                 delivery_fee: Math.round(Number(orderData.shippingCost) * 100) || 0, // number
-//                 delivery_fee_tax: 0,                            // number
-//                 small_order_fee: 0,                             // number
-//                 small_order_fee_tax: 0,                         // number
-//                 pick_and_pack_fee: 0,                           // number
-//                 pick_and_pack_fee_tax: 0,                       // number
-//                 tip: 0                                          // number
-//             }
-//         }
-
-//         console.log("Pedido pronto para ZoneSoft:", zonesoftOrderData)
-
-//         // 10. Converte o objeto do pedido para JSON e gera a assinatura HMAC
-//         const body = JSON.stringify(zonesoftOrderData)
-//         const signature = generateHmacSignature(body, secretKey)
-//         console.log("Enviando pedido para ZoneSoft com os dados mapeados...")
-//         console.log("Assinatura HMAC:", signature)
-
-//         // 11. Envia o pedido para o endpoint da ZoneSoft
-//         const response = await axios.post(apiUrlOrder, body, {
-//             headers: {
-//                 "Content-Type": "application/json",
-//                 "Authorization": appKey,
-//                 "X-Integration-Signature": signature
-//             }
-//         })
-
-//         console.log("Resposta da API de pedido:", response.data)
-//         // chamar funções do POS
-//         // return res ? res.status(200).json(response.data) : response.data
-//         return res.status(204).json(response.data)
-//     } catch (error) {
-//         console.error(
-//             "Erro ao enviar o pedido a zoneSoft:",
-//             error.response ? error.response.data : error.message
-//         )
-//         return res && res.status
-//             ? res.status(500).json({ error: "Erro ao enviar o pedido para ZoneSoft", details: error.message })
-//             : Promise.reject(error)
-//     }
-// }
-
 const zoneSoftOrder = async (req, res) => {
     try {
         const { orderCode } = req.params
@@ -255,21 +92,21 @@ const zoneSoftOrder = async (req, res) => {
             throw new Error(`Produto com zoneSoftId ${orderItem.zoneSoftId} não encontrado no menu`)
         }
 
-        const extraAttributes = {
+        const attributes = orderItem.extras?.map(extra => ({
             quantity: orderItem.quantity || 1,
             price: Number(menuProduct.price),
             discount: orderItem.prices?.discount || 0,
-            name: orderItem.extras || [],
+            name: extra,
             id: menuProduct.id
-        }
+        })) || []
 
         const productItem = {
             quantity: orderItem.quantity || 1,
-            price: Number(menuProduct.price),
-            discount: orderItem.prices?.discount || 0,
+            price: Math.round(Number(orderItem.price) * 100), // converte para centavos
+            discount: orderItem.variant?.discount || 0,
             name: menuProduct.name,
-            id: menuProduct.id,
-            attributes: extraAttributes
+            id: orderItem.id,
+            attributes: attributes
         }
 
         const zonesoftOrderData = {
@@ -279,7 +116,7 @@ const zoneSoftOrder = async (req, res) => {
             order_time: new Date(order.createdAt).toISOString().slice(0, 19).replace("T", " "),
             estimated_pickup_time: new Date(new Date(order.createdAt).getTime() + 30 * 60000).toISOString().slice(0, 19).replace("T", " "),
             currency: "EUR",
-            delivery_fee: Math.round(Number(orderData.shippingCost) * 100) || 0,
+            delivery_fee: Math.round(Number(orderData.frete) * 100) || 0,
             courier: {
                 name: "",
                 phone_number: "",
@@ -292,7 +129,7 @@ const zoneSoftOrder = async (req, res) => {
                 email: orderData.user_info?.email || ""
             },
             products: [productItem],
-            obs: orderData.customerTrns ? orderData.customerTrns.join(" ") : "",
+            obs: orderData.additionalInformation,
             orderIsAlreadyPaid: true,
             payment_type: orderData.payment_type || 1,
             delivery_address: {
@@ -300,17 +137,17 @@ const zoneSoftOrder = async (req, res) => {
                 latitude: orderData.localizacao || "",
                 longitude: orderData.localizacao || ""
             },
-            is_picked_up_by_customer: orderData.shippingOption !== "shipping",
+            is_picked_up_by_customer: orderData.frete,
             discounted_products_total: 0,
-            total_customer_to_pay: Math.round(Number(orderData.total) * 100) || 0,
+            total_customer_to_pay: Math.round(Number(orderData.amount) * 100) || 0,
             payment_charges: {
                 total: Number(orderData.amount) || 0,
-                sub_total: Math.round(Number(orderData.subTotal) * 100) || 0,
+                sub_total: Math.round(Number(orderData.amount) * 100) || 0,
                 tax: 0,
                 total_fee: 0,
                 total_fee_tax: 0,
                 bag_fee: 0,
-                delivery_fee: Math.round(Number(orderData.shippingCost) * 100) || 0,
+                delivery_fee: Math.round(Number(orderData.frete) * 100) || 0,
                 delivery_fee_tax: 0,
                 small_order_fee: 0,
                 small_order_fee_tax: 0,
