@@ -5,7 +5,6 @@ const Order = require("../models/Order")
 
 const createPaymentOrder = async (req, res) => {
     const data = req.body
-    console.log("Dados recebidos para criar pagamento: ", data)
     try {
         const clientID = process.env.VIVA_CLIENT_ID
         const clientSecret = process.env.VIVA_CLIENT_SECRET

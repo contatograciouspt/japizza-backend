@@ -255,13 +255,21 @@ const zoneSoftOrder = async (req, res) => {
             throw new Error(`Produto com zoneSoftId ${orderItem.zoneSoftId} não encontrado no menu`)
         }
 
+        const extraAttributes = {
+            quantity: orderItem.quantity || 1,
+            price: Number(menuProduct.price),
+            discount: orderItem.prices?.discount || 0,
+            name: orderItem.extras || [],
+            id: menuProduct.id
+        }
+
         const productItem = {
             quantity: orderItem.quantity || 1,
             price: Number(menuProduct.price),
             discount: orderItem.prices?.discount || 0,
             name: menuProduct.name,
             id: menuProduct.id,
-            attributes: orderItem.extras || []
+            attributes: extraAttributes
         }
 
         const zonesoftOrderData = {
@@ -269,8 +277,7 @@ const zoneSoftOrder = async (req, res) => {
             store_id: clientId,
             type_order: orderData.shippingOption === "shipping" ? "DELIVERY" : "PICKUP",
             order_time: new Date(order.createdAt).toISOString().slice(0, 19).replace("T", " "),
-            estimated_pickup_time: new Date(new Date(order.createdAt).getTime() + 30 * 60000)
-                .toISOString().slice(0, 19).replace("T", " "),
+            estimated_pickup_time: new Date(new Date(order.createdAt).getTime() + 30 * 60000).toISOString().slice(0, 19).replace("T", " "),
             currency: "EUR",
             delivery_fee: Math.round(Number(orderData.shippingCost) * 100) || 0,
             courier: {
@@ -290,8 +297,8 @@ const zoneSoftOrder = async (req, res) => {
             payment_type: orderData.payment_type || 1,
             delivery_address: {
                 label: orderData.user_info?.address || "",
-                latitude: orderData.localizacao?.latitude || "",
-                longitude: orderData.localizacao?.longitude || ""
+                latitude: orderData.localizacao || "",
+                longitude: orderData.localizacao || ""
             },
             is_picked_up_by_customer: orderData.shippingOption !== "shipping",
             discounted_products_total: 0,
