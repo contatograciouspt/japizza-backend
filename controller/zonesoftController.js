@@ -261,7 +261,7 @@ const zoneSoftOrder = async (req, res) => {
             discount: orderItem.prices?.discount || 0,
             name: menuProduct.name,
             id: menuProduct.id,
-            attributes: orderItem.variantNames || []
+            attributes: orderItem.extras || []
         }
 
         const zonesoftOrderData = {
