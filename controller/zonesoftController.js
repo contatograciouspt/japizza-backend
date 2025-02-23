@@ -105,7 +105,7 @@ const zoneSoftOrder = async (req, res) => {
             price: Math.round(Number(orderItem.price) * 100), // converte para centavos
             discount: orderItem.variant?.discount || 0,
             name: menuProduct.name,
-            id: orderItem.id,
+            id: menuProduct.id,
             attributes: attributes
         }
 

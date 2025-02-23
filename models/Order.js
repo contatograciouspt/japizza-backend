@@ -199,6 +199,7 @@ const orderSchema = new mongoose.Schema({
     localizacao: String,
     frete: Number,
     pagamentoNaEntrega: String,
+    paymentMethod: String,
     paymentMethodDetails: {
         method: String,
         changeFor: String
