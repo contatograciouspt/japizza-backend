@@ -42,6 +42,7 @@ const createPaymentOrder = async (req, res) => {
             localizacao: data.localizacao,
             status: data.status,
             user_info: data.user_info,
+            frete: data.frete,
         }
 
         // Salvar dados no banco de dados
@@ -135,6 +136,7 @@ const savecashOnDelivery = async (req, res) => {
             localizacao: data.localizacao,
             status: data.status,
             user_info: data.user_info,
+            frete: data.frete,
         }
 
         console.log("Salvando pedido de pagamento na entrega: ", orderToSave)

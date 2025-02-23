@@ -185,6 +185,7 @@ const orderSchema = new mongoose.Schema({
         longitude: String
     },
     additionalInformation: String,
+    frete: Number,
     zoneSoftId: String,
     pagamentoNaEntrega: String,
     paymentMethodDetails: {
