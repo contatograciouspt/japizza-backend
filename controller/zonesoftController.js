@@ -129,7 +129,7 @@ const zoneSoftOrder = async (req, res) => {
                 email: orderData.user_info?.email || ""
             },
             products: [productItem],
-            obs: orderData.additionalInformation,
+            obs: orderData.user_info?.additionalInformation || "",
             orderIsAlreadyPaid: true,
             payment_type: orderData.payment_type || 1,
             delivery_address: {
