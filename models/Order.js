@@ -151,7 +151,8 @@ const orderSchema = new mongoose.Schema({
         originalPrice: Number,
         quantity: Number,
         itemTotal: Number,
-        category: Object
+        category: Object,
+        zoneSoftId: String,
     }],
     user_info: {
         name: String,
@@ -180,13 +181,9 @@ const orderSchema = new mongoose.Schema({
         data: Date,
         horario: String
     },
-    localizacao: {
-        latitude: String,
-        longitude: String
-    },
+    localizacao: String,
     additionalInformation: String,
     frete: Number,
-    zoneSoftId: String,
     pagamentoNaEntrega: String,
     paymentMethodDetails: {
         method: String,
