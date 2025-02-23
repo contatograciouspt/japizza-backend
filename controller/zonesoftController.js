@@ -54,12 +54,6 @@ const zoneSoftMenu = async (req, res) => {
     try {
         // O menu deve vir no corpo da requisição (JSON)
         const menuData = req.body
-        // if (!menuData || !menuData.families) {
-        //     return res.status(400).json({ error: "Dados do menu inválidos ou incompletos." })
-        // }
-
-        // Salva o menu recebido no banco de dados (pode ser feito como novo documento ou atualização, conforme sua lógica)
-        // Exemplo: cria um novo registro (você pode implementar lógica para atualizar o menu existente se necessário)
         await Menu.create(menuData)
         console.log("Menu salvo com sucesso!")
         // retornar status 204 conforme documentação da ZoneSoft (sem corpo)
@@ -349,30 +343,6 @@ const zoneSoftOrderStatus = async (req, res) => {
         // const { order_id, status } = req.params
         const { order_id, status } = req.body // order_id é o mesmo que zoneSoftId do produto
         console.log("Recebido pedido de status:", order_id, status)
-        // if (!order_id || !status) {
-        //     return res.status(400).json({ error: "order_id and status are required." })
-        // }
-
-        // // Encontra o produto usando o zoneSoftId
-        // const product = await Product.findOne({ zoneSoftId: order_id })
-        // if (!product) {
-        //     return res.status(404).json({ error: `Produto com zoneSoftId ${order_id} não encontrado.` })
-        // }
-
-        // // Encontra uma order com status "Pago" que contenha esse produto
-        // const order = await Order.findOne({
-        //     status: "Pago",
-        //     "cart.cart.productId": product.productId
-        // })
-        // if (!order) {
-        //     return res.status(404).json({ error: "Order não encontrado para o produto informado." })
-        // }
-
-        // // Atualiza o status da ordem para o novo status recebido
-        // order.status = status
-        // await order.save()
-        // console.log(`Order ${order.orderCode} atualizada para status: ${status}`)
-
         // Retorna 204 No Content conforme exigido
         return res.status(204).end()
     } catch (error) {
