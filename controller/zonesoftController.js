@@ -205,7 +205,7 @@ const zoneSoftOrderStatus = (req, res) => {
             status: "HTTP/1.1 200 OK"
         }
     }
-    return res.status(204).end(response)
+    return res.status(204).json(response)
 }
 
 const zoneSoftPosStatus = (req, res) => {
