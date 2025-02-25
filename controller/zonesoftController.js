@@ -207,7 +207,7 @@ const zoneSoftPosOnline = (req, res) => {
 // Coloca o POS offline para não receber encomendas (PUT /pos/status/closing)
 const zoneSoftPosOffline = (req, res) => {
     console.log("PUT /pos/status/closing: ", req.params, req.body)
-    return res.status(204).end() // ou res.status(204).end()
+    return res.status(204).end()
 }
 
 module.exports = {
