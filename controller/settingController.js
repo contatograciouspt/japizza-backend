@@ -683,7 +683,7 @@ const updateStoreCustomizationSetting = async (req, res) => {
       }
     );
 
-    console.log("Configurações customizadas atualizadas para a loja: ", storeCustomizationSetting);
+    // console.log("Configurações customizadas atualizadas para a loja: ", storeCustomizationSetting);
     res.send({
       data: storeCustomizationSetting.setting,
       message: "Atualização da configuração de personalização da loja online com sucesso!",
