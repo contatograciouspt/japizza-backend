@@ -189,15 +189,9 @@ const zoneSoftOrder = async (req, res) => {
     }
 }
 
-const zoneSoftOrderStatus = async (req, res) => {
-    try {
-        const { order_id, status } = req.body
-        console.log("Recebido pedido de status:", order_id, status)
-        return res.status(204).end()
-    } catch (error) {
-        console.error("Erro em zoneSoftOrderStatus:", error.message)
-        return res.status(500).json({ error: "Erro ao atualizar o status do pedido", details: error.message })
-    }
+const zoneSoftOrderStatus = (req, res) => {
+    console.log("Recebido pedido de status:", req.params, req.body)
+    return res.status(204).end()
 }
 
 const zoneSoftPosStatus = (req, res) => {
@@ -205,13 +199,11 @@ const zoneSoftPosStatus = (req, res) => {
     return res.status(204).end()
 }
 
-
 // Coloca o POS online para receber encomendas (DELETE /pos/status/closing)
 const zoneSoftPosOnline = (req, res) => {
     console.log("DELETE /pos/status/closing: ", req.params, req.body)
     return res.status(204).end()
 }
-
 
 // Coloca o POS offline para não receber encomendas (PUT /pos/status/closing)
 const zoneSoftPosOffline = (req, res) => {
