@@ -86,6 +86,7 @@ const zoneSoftOrder = async (req, res) => {
         const orderData = JSON.parse(JSON.stringify(order))
         const orderItem = orderData.cart[0]
         const extra = orderItem.extras
+        const price = orderItem.price
 
         if (!orderItem?.zoneSoftId) {
             throw new Error("ZoneSoftId não encontrado no item do pedido")
@@ -100,8 +101,7 @@ const zoneSoftOrder = async (req, res) => {
 
         const attributes = {
             quantity: orderItem.quantity || 1,
-            // price: Number(menuProduct.price),
-            price: 0,
+            price: price,
             discount: 0,
             name: extra,
             id: orderItem.zoneSoftId
@@ -119,7 +119,7 @@ const zoneSoftOrder = async (req, res) => {
         const zonesoftOrderData = {
             order_id: order.orderCode.toString(),
             store_id: clientId,
-            type_order: orderData.shippingOption === "shipping" ? "DELIVERY" : "PICKUP",
+            type_order: orderData.paymentMethod === "Online" ? "DELIVERY" : "PICKUP",
             order_time: new Date(order.createdAt).toISOString().slice(0, 19).replace("T", " "),
             estimated_pickup_time: new Date(new Date(order.createdAt).getTime() + 30 * 60000).toISOString().slice(0, 19).replace("T", " "),
             currency: "EUR",
@@ -195,19 +195,6 @@ const zoneSoftOrder = async (req, res) => {
     }
 }
 
-const zoneSoftOrderStatus = (req, res) => {
-    console.log("Recebido pedido de status:", req.params, req.body)
-    const response = {
-        body: "",
-        header: {
-            statusCode: 200,
-            statusMessage: "OK",
-            status: "HTTP/1.1 200 OK"
-        }
-    }
-    return res.status(204).json(response)
-}
-
 const zoneSoftPosStatus = (req, res) => {
     console.log("GET /pos/status recebido:", req.params, req.body)
     const response = {
@@ -253,7 +240,6 @@ module.exports = {
     zoneSoftLogin,
     zoneSoftMenu,
     zoneSoftOrder,
-    zoneSoftOrderStatus,
     zoneSoftPosOnline,
     zoneSoftPosStatus,
     zoneSoftPosOffline
