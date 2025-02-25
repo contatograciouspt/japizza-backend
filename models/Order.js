@@ -200,6 +200,7 @@ const orderSchema = new mongoose.Schema({
     frete: Number,
     pagamentoNaEntrega: String,
     paymentMethod: String,
+    retiradaNaLoja: Boolean,
     paymentMethodDetails: {
         method: String,
         changeFor: String

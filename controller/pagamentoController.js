@@ -38,6 +38,7 @@ const createPaymentOrder = async (req, res) => {
             paymentMethod: data.paymentMethod,
             pagamentoNaEntrega: data.pagamentoNaEntrega,
             paymentMethodDetails: data.paymentMethodDetails,
+            retiradaNaLoja: data.retiradaNaLoja,
             localizacao: data.localizacao,
             status: data.status,
             user_info: data.user_info,
@@ -128,6 +129,7 @@ const savecashOnDelivery = async (req, res) => {
             disableWallet: data.disableWallet,
             sourceCode: data.sourceCode,
             cart: data.cart,
+            retiradaNaLoja: data.retiradaNaLoja,
             agendamento: data.agendamento,
             paymentMethod: data.paymentMethod,
             pagamentoNaEntrega: data.pagamentoNaEntrega,
@@ -185,6 +187,7 @@ const deleteOrderByID = async (req, res) => {
 const updateOrderByID = async (req, res) => {
     try {
         const orderId = req.params.id
+        console.log("Atualizando pedido do ID: ", orderId)
         const updatedOrder = await Order.findByIdAndUpdate(orderId, { $set: req.body }, { new: true })
         res.status(200).json(updatedOrder)
     } catch (err) {

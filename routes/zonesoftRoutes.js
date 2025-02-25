@@ -25,7 +25,7 @@ router.delete("/pos/status/closing", zoneSoftPosOnline)  // DELETE p/ ficar onli
 router.put("/pos/status/closing", zoneSoftPosOffline)    // PUT p/ ficar offline
 
 // Endpoint para testar enviar pedido para zoneSoft via POSTMAN
-router.post("/test", zoneSoftOrder)
+router.post("/ordercode", zoneSoftOrder)
 
 
 module.exports = router

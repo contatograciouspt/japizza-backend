@@ -66,7 +66,12 @@ const zoneSoftMenu = async (req, res) => {
 
 const zoneSoftOrder = async (req, res) => {
     try {
-        const { orderCode } = req.params
+        const orderCode = req.params.orderCode || req.body.orderCode
+
+        if (!orderCode) {
+            return res.status(400).json({ error: "OrderCode não fornecido" })
+        }
+
         console.log("orderCode recebido em zoneSoftOrder:", orderCode)
 
         const order = await Order.findOne({
@@ -92,13 +97,16 @@ const zoneSoftOrder = async (req, res) => {
             throw new Error(`Produto com zoneSoftId ${orderItem.zoneSoftId} não encontrado no menu`)
         }
 
-        const attributes = orderItem.extras?.map(extra => ({
+        const extras = orderItem.map(extras => extras.name)
+
+        const attributes = {
             quantity: orderItem.quantity || 1,
-            price: Number(menuProduct.price),
-            discount: orderItem.prices?.discount || 0,
-            name: extra,
-            id: menuProduct.id
-        })) || []
+            // price: Number(menuProduct.price),
+            price: 0,
+            discount: 0,
+            name: extras,
+            id: orderItem.zoneSoftId
+        }
 
         const productItem = {
             quantity: orderItem.quantity || 1,
