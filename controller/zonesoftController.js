@@ -197,43 +197,19 @@ const zoneSoftOrder = async (req, res) => {
 
 const zoneSoftPosStatus = (req, res) => {
     console.log("GET /pos/status recebido:", req.params, req.body)
-    // const response = {
-    //     body: "",
-    //     header: {
-    //         statusCode: 200,
-    //         statusMessage: "OK",
-    //         status: "HTTP/1.1 200 OK"
-    //     }
-    // }
-    res.status(200).end()
+    return res.status(200).end()
 }
 
 // Coloca o POS online para receber encomendas (DELETE /pos/status/closing)
 const zoneSoftPosOnline = (req, res) => {
     console.log("DELETE /pos/status/closing:", req.params, req.body)
-    // const response = {
-    //     body: "",
-    //     header: {
-    //         statusCode: 204,
-    //         statusMessage: "No Content",
-    //         status: "HTTP/1.1 204 No Content"
-    //     }
-    // }
-    res.status(204).end()
+    return res.status(204).end()
 }
 
 // Coloca o POS offline para não receber encomendas (PUT /pos/status/closing)
 const zoneSoftPosOffline = (req, res) => {
     console.log("PUT /pos/status/closing:", req.params, req.body)
-    // const response = {
-    //     body: "",
-    //     header: {
-    //         statusCode: 204,
-    //         statusMessage: "No Content",
-    //         status: "HTTP/1.1 204 No Content"
-    //     }
-    // }
-    res.status(204).end()
+    return res.status(204).end()
 }
 
 module.exports = {
