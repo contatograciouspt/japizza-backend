@@ -17,15 +17,19 @@ router.post("/login", zoneSoftLogin)
 // Rota para o endpoint de menu (recebe e salva o menu sincronizado)
 router.post("/menu", zoneSoftMenu)
 
+// zonesoftRoutes.js
+
 // Rota para atualizar o status do pedido
 router.post("/order/status", zoneSoftOrderStatus)
-router.get("/order/status", zoneSoftOrderStatus)
-router.put("/order/status", zoneSoftOrderStatus)
-router.delete("/order/status", zoneSoftOrderStatus)
 
-router.get("/pos/status", zoneSoftPosStatus)        // GET p/ ping do POS
-router.delete("/pos/status/closing", zoneSoftPosOnline)  // DELETE p/ ficar online
-router.put("/pos/status/closing", zoneSoftPosOffline)    // PUT p/ ficar offline
+// Rota para obter o status do POS
+router.get("/pos/status", zoneSoftPosStatus)
+
+// Rota para colocar o POS online
+router.delete("/pos/status/closing", zoneSoftPosOnline)
+
+// Rota para colocar o POS offline
+router.put("/pos/status/closing", zoneSoftPosOffline)
 
 // Endpoint para testar enviar pedido para zoneSoft via POSTMAN
 router.post("/ordercode", zoneSoftOrder)

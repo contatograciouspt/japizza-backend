@@ -177,7 +177,7 @@ const zoneSoftOrder = async (req, res) => {
             }
         })
 
-        return res.status(204).json(response.data)
+        return res.status(204).end()
 
     } catch (error) {
         console.error("Erro ao enviar pedido:", error.response ? error.response.data : error.message)
@@ -188,6 +188,7 @@ const zoneSoftOrder = async (req, res) => {
     }
 }
 
+
 const zoneSoftOrderStatus = (req, res) => {
     console.log("Recebido pedido de status:", req.params, req.body)
     return res.status(204).end()
@@ -195,18 +196,18 @@ const zoneSoftOrderStatus = (req, res) => {
 
 const zoneSoftPosStatus = (req, res) => {
     console.log("GET /pos/status recebido:", req.params, req.body)
-    return res.status(204).end()
+    return res.status(200).end()
 }
 
 // Coloca o POS online para receber encomendas (DELETE /pos/status/closing)
 const zoneSoftPosOnline = (req, res) => {
-    console.log("DELETE /pos/status/closing: ", req.params, req.body)
+    console.log("DELETE /pos/status/closing:", req.params, req.body)
     return res.status(204).end()
 }
 
 // Coloca o POS offline para não receber encomendas (PUT /pos/status/closing)
 const zoneSoftPosOffline = (req, res) => {
-    console.log("PUT /pos/status/closing: ", req.params, req.body)
+    console.log("PUT /pos/status/closing:", req.params, req.body)
     return res.status(204).end()
 }
 
