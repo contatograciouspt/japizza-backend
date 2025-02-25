@@ -85,6 +85,8 @@ const zoneSoftOrder = async (req, res) => {
 
         const orderData = JSON.parse(JSON.stringify(order))
         const orderItem = orderData.cart[0]
+        const extra = orderItem.extras
+        console.log("Extra:", extra)
 
         if (!orderItem?.zoneSoftId) {
             throw new Error("ZoneSoftId não encontrado no item do pedido")
@@ -97,14 +99,12 @@ const zoneSoftOrder = async (req, res) => {
             throw new Error(`Produto com zoneSoftId ${orderItem.zoneSoftId} não encontrado no menu`)
         }
 
-        const extras = orderItem.map(extras => extras.name)
-
         const attributes = {
             quantity: orderItem.quantity || 1,
             // price: Number(menuProduct.price),
             price: 0,
             discount: 0,
-            name: extras,
+            name: extra,
             id: orderItem.zoneSoftId
         }
 
