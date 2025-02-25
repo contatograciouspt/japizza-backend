@@ -188,7 +188,6 @@ const zoneSoftOrder = async (req, res) => {
     }
 }
 
-
 const zoneSoftOrderStatus = (req, res) => {
     console.log("Recebido pedido de status:", req.params, req.body)
     return res.status(204).end()
@@ -196,7 +195,14 @@ const zoneSoftOrderStatus = (req, res) => {
 
 const zoneSoftPosStatus = (req, res) => {
     console.log("GET /pos/status recebido:", req.params, req.body)
-    return res.status(200).end()
+    return res.status(200).json({
+        body: "",
+        header: {
+            statusCode: 200,
+            statusMessage: "OK",
+            status: "HTTP/1.1 200 OK"
+        }
+    })
 }
 
 // Coloca o POS online para receber encomendas (DELETE /pos/status/closing)
