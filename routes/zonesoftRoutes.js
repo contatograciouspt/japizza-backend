@@ -20,7 +20,7 @@ router.post("/menu", zoneSoftMenu)
 // Rota para atualizar o status do pedido
 router.post("/order/status", zoneSoftOrderStatus)
 
-router.get("/pos/status", zoneSoftPosStatus)        // GET p/ ping do POS
+router.get("/pos/status/", zoneSoftPosStatus)        // GET p/ ping do POS
 router.delete("/pos/status/closing", zoneSoftPosOnline)  // DELETE p/ ficar online
 router.put("/pos/status/closing", zoneSoftPosOffline)    // PUT p/ ficar offline
 

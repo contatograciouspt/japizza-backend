@@ -86,7 +86,6 @@ const zoneSoftOrder = async (req, res) => {
         const orderData = JSON.parse(JSON.stringify(order))
         const orderItem = orderData.cart[0]
         const extra = orderItem.extras
-        console.log("Extra:", extra)
 
         if (!orderItem?.zoneSoftId) {
             throw new Error("ZoneSoftId não encontrado no item do pedido")
