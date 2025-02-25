@@ -22,6 +22,9 @@ router.post("/order/status", zoneSoftOrderStatus)
 
 // Rota para obter o status do POS
 router.get("/pos/status", zoneSoftPosStatus)
+router.post("/pos/status", zoneSoftPosStatus)
+router.delete("/pos/status", zoneSoftPosStatus)
+router.put("/pos/status", zoneSoftPosStatus)
 
 // Rota para colocar o POS online
 router.delete("/pos/status/closing", zoneSoftPosOnline)
