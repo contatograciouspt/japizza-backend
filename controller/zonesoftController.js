@@ -193,6 +193,7 @@ const zoneSoftOrder = async (req, res) => {
 const zoneSoftPosStatus = (req, res) => {
     try {
         const token = req.headers.authorization
+        console.log("Token recebido em zoneSoftPosStatus:", token)
         
         if (!token) {
             return res.status(401).json({
@@ -211,6 +212,7 @@ const zoneSoftPosStatus = (req, res) => {
 const zoneSoftPosOnline = (req, res) => {
     try {
         const token = req.headers.authorization
+        console.log("Token recebido em zoneSoftPosOnline:", token)
         
         if (!token) {
             return res.status(401).json({
@@ -229,6 +231,7 @@ const zoneSoftPosOnline = (req, res) => {
 const zoneSoftPosOffline = (req, res) => {
     try {
         const token = req.headers.authorization
+        console.log("Token recebido em zoneSoftPosOffline:", token)
         
         if (!token) {
             return res.status(401).json({
