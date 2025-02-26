@@ -191,6 +191,7 @@ const orderSchema = new mongoose.Schema({
     subTotal: Number,
     shippingCost: Number,
     discount: Number,
+    cupom: String,
     total: Number,
     agendamento: {
         data: Date,
