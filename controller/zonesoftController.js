@@ -177,14 +177,9 @@ const zoneSoftOrder = async (req, res) => {
             }
         })
 
-        return res.status(204).json({
-            body: "",
-            header: {
-                statusCode: 204,
-                statusMessage: "No Content",
-                status: "HTTP/1.1 204 No Content"
-            }
-        })
+        console.log("Resposta da API ZoneSoft:", response.data)
+
+        return res.status(204).end()
 
     } catch (error) {
         console.error("Erro ao enviar pedido:", error.response ? error.response.data : error.message)
