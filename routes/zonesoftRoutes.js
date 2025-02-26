@@ -20,10 +20,10 @@ router.post("/menu", zoneSoftMenu)
 router.get("/order/status", zoneSoftPosStatus)
 
 // Rota para colocar o POS online
-router.delete("/pos/status", zoneSoftPosOnline)
+router.delete("/pos/status/", zoneSoftPosOnline)
 
 // Rota para colocar o POS offline
-router.put("/pos/status", zoneSoftPosOffline)
+router.put("/pos/status/", zoneSoftPosOffline)
 
 // Endpoint para testar enviar pedido para zoneSoft via POSTMAN
 router.post("/ordercode", zoneSoftOrder)
