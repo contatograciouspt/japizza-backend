@@ -160,7 +160,7 @@ const savecashOnDelivery = async (req, res) => {
 const getCustomAllOrders = async (req, res) => {
     try {
         const data = req.query
-        console.log("Solicitando dados de pagamento: ", data)
+        console.log("Obtendo dados de pagamento para cliente: ", data)
 
         const orders = await Order.find()
         res.status(200).json(orders)

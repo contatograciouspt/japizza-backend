@@ -165,10 +165,8 @@ const getOrderById = async (req, res) => {
 const getOrderByEmail = async (req, res) => {
   try {
     const { email } = req.params;
-
-    const orders = await Order.find({ "cart.user_info.email": email });
-
-    res.status(200).json(orders)
+    const orders = await Order.find({ "user_info.email": email });
+    res.json(orders)
   } catch (error) {
     console.log("Erro ao encontrar pedidos com email: ", error);
     res.status(500).send({
