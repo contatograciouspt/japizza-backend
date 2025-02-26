@@ -196,20 +196,60 @@ const zoneSoftOrder = async (req, res) => {
 }
 
 const zoneSoftPosStatus = (req, res) => {
-    console.log("GET /pos/status recebido:", req.params, req.body)
-    return res.status(200).end()
+    try {
+        const token = req.headers.authorization
+        
+        if (!token || token !== appKey) {
+            return res.status(401).json({
+                error: "Unauthorized - Token inválido"
+            })
+        }
+
+        // Responde com status 200 indicando que o POS está ativo
+        return res.status(200).json({
+            status: "active",
+            message: "POS está ativo e pronto para receber pedidos"
+        })
+    } catch (error) {
+        console.error("Erro ao verificar status do POS:", error)
+        return res.status(500).json({ error: "Erro interno do servidor" })
+    }
 }
 
-// Coloca o POS online para receber encomendas (DELETE /pos/status/closing)
 const zoneSoftPosOnline = (req, res) => {
-    console.log("DELETE /pos/status/closing:", req.params, req.body)
-    return res.status(204).end()
+    try {
+        const token = req.headers.authorization
+        
+        if (!token || token !== appKey) {
+            return res.status(401).json({
+                error: "Unauthorized - Token inválido"
+            })
+        }
+
+        // Responde com 204 indicando que o POS está online
+        return res.status(204).end()
+    } catch (error) {
+        console.error("Erro ao colocar POS online:", error)
+        return res.status(500).json({ error: "Erro interno do servidor" })
+    }
 }
 
-// Coloca o POS offline para não receber encomendas (PUT /pos/status/closing)
 const zoneSoftPosOffline = (req, res) => {
-    console.log("PUT /pos/status/closing:", req.params, req.body)
-    return res.status(204).end()
+    try {
+        const token = req.headers.authorization
+        
+        if (!token || token !== appKey) {
+            return res.status(401).json({
+                error: "Unauthorized - Token inválido"
+            })
+        }
+
+        // Responde com 204 indicando que o POS está offline
+        return res.status(204).end()
+    } catch (error) {
+        console.error("Erro ao colocar POS offline:", error)
+        return res.status(500).json({ error: "Erro interno do servidor" })
+    }
 }
 
 module.exports = {
