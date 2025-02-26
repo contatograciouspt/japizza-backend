@@ -199,17 +199,14 @@ const zoneSoftPosStatus = (req, res) => {
     try {
         const token = req.headers.authorization
         
-        if (!token || token !== appKey) {
+        if (!token) {
             return res.status(401).json({
                 error: "Unauthorized - Token inválido"
             })
         }
 
         // Responde com status 200 indicando que o POS está ativo
-        return res.status(200).json({
-            status: "active",
-            message: "POS está ativo e pronto para receber pedidos"
-        })
+        return res.status(200).end()
     } catch (error) {
         console.error("Erro ao verificar status do POS:", error)
         return res.status(500).json({ error: "Erro interno do servidor" })
@@ -220,7 +217,7 @@ const zoneSoftPosOnline = (req, res) => {
     try {
         const token = req.headers.authorization
         
-        if (!token || token !== appKey) {
+        if (!token) {
             return res.status(401).json({
                 error: "Unauthorized - Token inválido"
             })
@@ -238,7 +235,7 @@ const zoneSoftPosOffline = (req, res) => {
     try {
         const token = req.headers.authorization
         
-        if (!token || token !== appKey) {
+        if (!token) {
             return res.status(401).json({
                 error: "Unauthorized - Token inválido"
             })
